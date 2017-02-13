@@ -20,10 +20,20 @@ State* StateInitial::processInput(void* data)
       gameData->startTick = 0;
       gameData->playerOneTick = 0;
       gameData->playerTwoTick = 0;
+
+      GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
+      GPIOPin* gpio5 = gpio->getPin(5);
+      gpio5->setDirection(OUT);
+      gpio5->setValue(LOW);
       
       std::cout << "End StateInitial\n";
       
       return this->stateManager->getState("StateBeforeGame");
+}
+
+StateBeforeGame::StateBeforeGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf)
+{
+      this->LED = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(5);
 }
 
 State* StateBeforeGame::processInput(void* data)
@@ -33,10 +43,12 @@ State* StateBeforeGame::processInput(void* data)
       GameData* gameData = (GameData*) data;
       gameData->startTick = getTick();
       
+      this->LED->setValue(HIGH);
       timespec ts;
       ts.tv_sec = 3;
       ts.tv_nsec = 0;
       nanosleep(&ts, &ts);
+      this->LED->setValue(LOW);
       
       std::cout << "End StateBeforeGame\n";
       

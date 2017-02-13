@@ -18,8 +18,11 @@ public:
 class StateBeforeGame : public State
 {
 public:
-      StateBeforeGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
+      StateBeforeGame(StateManager* sm, PeripheralFactory* pf);
       State* processInput(void* data);
+      
+ private:
+      GPIOPin* LED;
 };
 
 class StateAfterGame : public State

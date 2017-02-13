@@ -1,3 +1,13 @@
+/********************************************************************************
+
+to compile
+g++ -o test test.cpp TestStates.cpp ../common/State.cpp ../common/Driver.cpp ../common/Peripherals.cpp -g
+
+to run
+./test <single digit number>
+
+********************************************************************************/
+
 #include <iostream>
 #include "../common/Peripherals.h"
 #include "../common/State.h"
