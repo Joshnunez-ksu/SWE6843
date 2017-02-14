@@ -5,6 +5,7 @@
 #include <sys/fcntl.h>
 #include <sys/unistd.h>
 #include <bitset>
+#include <time.h>
 
 #define GPIO_BASE 0x3F200000
 #define BLOCK_SIZE      (4*1024)
@@ -24,7 +25,19 @@
 #define GPPUD     (address + 37)
 #define GPPUDCLK  (address + 38)
 
-#define TEST_PIN  5
+#define TEST_PIN0  16
+#define TEST_PIN1  20
+#define TEST_PIN2  4
+#define TEST_PIN3  5
+
+void nanowait(long nanoseconds)
+{
+      timespec ts;
+      ts.tv_sec = 0;
+      ts.tv_nsec = nanoseconds;
+      
+      nanosleep(&ts, &ts);
+}
 
 int main()
 {
@@ -50,8 +63,8 @@ int main()
 
       char binaryStr[33];
        
-      unsigned int setInput = 7 << (TEST_PIN*3);
-      unsigned int setOutput = 1 << (TEST_PIN*3);
+      unsigned int setInput = 7 << ((TEST_PIN0%10)*3);
+      unsigned int setOutput = 1 << ((TEST_PIN0%10)*3);
       
       std::cout << "GPFSEL:      " << std::bitset<32>(*GPFSEL) << "\n";
       std::cout << "GPSET:       " << std::bitset<32>(*GPSET) << "\n";
@@ -62,31 +75,119 @@ int main()
       std::cout << "input bit: " << std::bitset<32>(setInput) << "\n";
       std::cout << "out bit:   " << std::bitset<32>(setOutput) << "\n";
       
-      *GPFSEL &= ~setInput;
-      std::cout << "set in:    " << std::bitset<32>(*GPFSEL) << "\n";
-      *GPFSEL |= setOutput;
-      std::cout << "set out:   " << std::bitset<32>(*GPFSEL) << "\n";
+      *(GPFSEL + (TEST_PIN0/10)) &= ~setInput;
+      std::cout << "set in:    " << std::bitset<32>(*(GPFSEL + (TEST_PIN0/10))) << "\n";
+      *(GPFSEL + (TEST_PIN0/10)) |= setOutput;
+      std::cout << "set out:   " << std::bitset<32>(*(GPFSEL + (TEST_PIN0/10))) << "\n";
+      
+      unsigned int setInputPin1 = (7<<((TEST_PIN1%10)*3));
+      unsigned int setOutPin1 = (1<<((TEST_PIN1%10)*3));
+      std::cout << "input bit: " << std::bitset<32>(setInputPin1) << "\n";
+      std::cout << "out bit:   " << std::bitset<32>(setOutPin1) << "\n";
+      
+            *(GPFSEL + (TEST_PIN1/10)) &= ~(setInputPin1);
+      std::cout << "set in:    " << std::bitset<32>(*(GPFSEL + (TEST_PIN1/10))) << "\n";
+      *(GPFSEL + (TEST_PIN1/10)) |= (setOutPin1);
+      std::cout << "set out:   " << std::bitset<32>(*(GPFSEL + (TEST_PIN1/10))) << "\n";
+      
+            *(GPFSEL + (TEST_PIN2/10)) &= ~(7<<((TEST_PIN2%10)*3));
+      std::cout << "set in:    " << std::bitset<32>(*(GPFSEL + (TEST_PIN2/10))) << "\n";
+      *(GPFSEL + (TEST_PIN2/10)) |= (1<<((TEST_PIN2%10)*3));
+      std::cout << "set out:   " << std::bitset<32>(*(GPFSEL + (TEST_PIN2/10))) << "\n";
+      
+            *(GPFSEL + (TEST_PIN3/10)) &= ~(7<<((TEST_PIN3%10)*3));
+      std::cout << "set in:    " << std::bitset<32>(*(GPFSEL + (TEST_PIN3/10))) << "\n";
+      *(GPFSEL + (TEST_PIN3/10)) |= (1<<((TEST_PIN3%10)*3));
+      std::cout << "set out:   " << std::bitset<32>(*(GPFSEL + (TEST_PIN3/10))) << "\n";
 
       //IN_GPIO(4);
       //OUT_GPIO(4);
 
+      *GPCLR = 0xFFFFFFFF;
+      nanowait(500000);
+      *GPSET = 0xFFFFFFFF;
+      nanowait(500000);
+      *GPCLR = 0xFFFFFFFF;
+      nanowait(500000);
+      /*
+      *GPCLR |= 1 << TEST_PIN0;
+      *GPCLR |= 1 << TEST_PIN1;
+      *GPCLR |= 1 << TEST_PIN2;
+      *GPCLR |= 1 << TEST_PIN3;
+      */
+      int bitToSet = 0;
+      
       int v = 0;      
-      for (int i = 0; i < 5; i++)
+      for (int i = 0; i < 10; i++)
       {
-            std::cout << "Pin value before = " << std::bitset<32>(*GPLEV) << "\n";
-            *GPSET |= 1 << TEST_PIN;
+            std::cout << "Pin value before " << i << " = " << std::bitset<32>(*GPLEV) << "\n";
+            
+            if (i & 0x01)
+            {
+                        *GPSET       |= (1 << TEST_PIN0);
+                        nanowait(500);
+            }
+            else
+            {
+                  *GPCLR |= (1 << TEST_PIN0);
+                  nanowait(500);
+            }
+            
+            if (i & 0x02)
+            {
+                        *GPSET       |= (1 << TEST_PIN1);
+                        nanowait(500);
+            }
+            else
+            {
+                  *GPCLR |= (1 << TEST_PIN1);
+                  nanowait(500);
+            }
+            
+            if (i & 0x04)
+            {
+                        *GPSET       |= (1 << TEST_PIN2);
+                        nanowait(500);
+            }
+            else
+            {
+                  *GPCLR |= (1 << TEST_PIN2);
+                  nanowait(500);
+            }
+            
+            if (i & 0x08)
+            {
+                        *GPSET       |= (1 << TEST_PIN3);
+                        nanowait(500);
+            }
+            else
+            {
+                  *GPCLR |= (1 << TEST_PIN3);
+                  nanowait(500);
+            }            
             sleep(1);
             
-            std::cout << "Pin value after  = " << std::bitset<32>(*GPLEV) << "\n";
+            std::cout << "Pin value after " << i << "  = " << std::bitset<32>(*GPLEV) << "\n";
             
-            *GPCLR |= 1 << TEST_PIN;
+            
+            //*GPCLR |= 1 << TEST_PIN;
             sleep(1);
             
       }
 
       //clear everything
       *GPFSEL &= 0;
+
+      *GPCLR = 0xFFFFFFFF;
+      /*
+      *GPCLR |= 1 << TEST_PIN0;
+      *GPCLR |= 1 << TEST_PIN1;
+      *GPCLR |= 1 << TEST_PIN2;
+      *GPCLR |= 1 << TEST_PIN3;
+      */
       
+      nanowait(500000);
+         
       std::cout << "GPFSEL:      " << std::bitset<32>(*GPFSEL) << "\n";
       std::cout << "GPSET:       " << std::bitset<32>(*GPSET) << "\n";
       std::cout << "GPCLR:       " << std::bitset<32>(*GPCLR) << "\n";

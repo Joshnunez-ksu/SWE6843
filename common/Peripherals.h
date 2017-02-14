@@ -27,6 +27,7 @@ public:
       
 protected:
       void setRegisterAddress(const char* registerName, volatile unsigned int* address);
+      int memoryFD;
       
 private:
       std::string name;
@@ -39,6 +40,8 @@ public:
       PeripheralFactory();
       ~PeripheralFactory();
       Peripheral* getPeripheral(const char* peripheralName);
+      
+protected:
       
 private:
       std::map<std::string, Peripheral*> peripheralMap;
@@ -87,6 +90,12 @@ enum DIRECTION
       OUT = 1
 };
 
+enum PULL
+{
+      DOWN = 0,
+      UP = 0
+};
+
 class GPIOPin
 {
 public:
@@ -97,15 +106,24 @@ public:
       VOLTAGE getValue();
       
       void setDirection(DIRECTION d);
+      void setPull(PULL p);
       
 private:
+      std::string getGPIOPath(const char* path);
+      std::string getPortPath(const char* path);
+      
       GPIOSystem* gpio;
       int pinNumber;
+      char strPinNumber[3];
       
       volatile unsigned int* GPFSEL;
       volatile unsigned int* GPSET;
       volatile unsigned int* GPCLR;
       volatile unsigned int* GPLEV;
+      volatile unsigned int* GPPUD;
+      volatile unsigned int* GPPUDCLK;
+      
+      std::string strBasePath;
 };
 
 class PWMPin
@@ -136,7 +154,7 @@ private:
 class SingleDigitDisplay
 {
 public:
-      SingleDigitDisplay(GPIOPin* pin0, GPIOPin* pin1, GPIOPin* pin2, GPIOPin* pin3);
+      SingleDigitDisplay(GPIOPin* pin0, GPIOPin* pin1, GPIOPin* pin2, GPIOPin* pin3, GPIOPin* dp);
       void setDisplay(int displayValue);
       
 private:
@@ -144,6 +162,7 @@ private:
       GPIOPin* pin1;
       GPIOPin* pin2;
       GPIOPin* pin3;
+      GPIOPin* dp;
       
 };
 

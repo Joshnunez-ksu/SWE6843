@@ -26,6 +26,8 @@ public:
       Button* theButton;
       GPIOPin* LED;
       int pressCount;
+      SingleDigitDisplay* theDisplay;
+      SingleDigitDisplay* secDisplay;
 };
 
 class StateAfterGame : public State
