@@ -5,6 +5,7 @@
 #include <string>
 
 #define PERIPHERAL_GPIO  "GPIO"
+#define PERIPHERAL_PWM "PWM"
 
 // GPIO System Register Names
 #define REGISTER_GPIO_GPFSEL  "GPFSEL"
@@ -59,17 +60,32 @@ public:
       std::map<int, GPIOPin*> pinMap;
 };
 
-typedef enum
+class PWMPin;
+
+class PWMSystem: public Peripheral
+{
+public:
+      PWMSystem();
+      ~PWMSystem();
+      
+      PWMPin* getPin(int pinNumer);
+      
+private:
+      std::map<int, PWMPin*> pinMap;
+      
+};
+
+enum VOLTAGE
 {
       LOW = 0,
       HIGH = 1
-} VOLTAGE;
+};
 
-typedef enum
+enum DIRECTION
 {
       IN = 0,
       OUT = 1
-} DIRECTION;
+};
 
 class GPIOPin
 {
@@ -90,6 +106,54 @@ private:
       volatile unsigned int* GPSET;
       volatile unsigned int* GPCLR;
       volatile unsigned int* GPLEV;
+};
+
+class PWMPin
+{
+public:
+      PWMPin(PWMSystem* pwm, int pinNumber);
+      ~PWMPin();
+      
+      void setM(int m);
+      void setN(int n);
+
+private:
+      int pinNumber;
+      PWMSystem* pwm;
+      
+};
+
+class Button
+{
+public:
+      Button(GPIOPin* pin);
+      bool pressed();
+      
+private:
+      GPIOPin* pin;
+};
+
+class SingleDigitDisplay
+{
+public:
+      SingleDigitDisplay(GPIOPin* pin0, GPIOPin* pin1, GPIOPin* pin2, GPIOPin* pin3);
+      void setDisplay(int displayValue);
+      
+private:
+      GPIOPin* pin0;
+      GPIOPin* pin1;
+      GPIOPin* pin2;
+      GPIOPin* pin3;
+      
+};
+
+class Buzzer
+{
+public:
+      Buzzer(PWMPin* pin);
+
+private:
+      PWMPin* pin;
 };
 
 #endif

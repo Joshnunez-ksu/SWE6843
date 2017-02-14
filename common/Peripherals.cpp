@@ -98,15 +98,15 @@ GPIOSystem::GPIOSystem() : Peripheral(PERIPHERAL_GPIO)
 
 GPIOSystem::~GPIOSystem()
 {
-      munmap(this->memoryMap, BLOCK_SIZE);
-      close(this->memoryFD);
-      
       for (std::map<int, GPIOPin*>::iterator it=this->pinMap.begin();
             it != this->pinMap.end();
             ++it)
       {
             delete it->second;
       }
+      
+      munmap(this->memoryMap, BLOCK_SIZE);
+      close(this->memoryFD);
 }
 
 GPIOPin* GPIOSystem::getPin(int pinNumber)
@@ -164,6 +164,7 @@ void GPIOPin::setValue(VOLTAGE v)
 VOLTAGE GPIOPin::getValue()
 {
       // use the register and get the voltage
+      return (VOLTAGE) ((*this->GPLEV & (1 << this->pinNumber)) >> this->pinNumber);
 }
 
 void GPIOPin::setDirection(DIRECTION d)
@@ -171,10 +172,105 @@ void GPIOPin::setDirection(DIRECTION d)
       // use the register to set the direction
       if (IN == d)
       {
-            *this->GPFSEL &= ~(7 << (this->pinNumber * 3));
+            *(this->GPFSEL + (this->pinNumber/10)) &= ~(7 << ((this->pinNumber%10) * 3));
       }
       else
       {
-            *this->GPFSEL |= 1 << (this->pinNumber * 3);
+            *(this->GPFSEL + (this->pinNumber/10)) |= 1 << ((this->pinNumber%10) * 3);
       }
 }
+
+PWMSystem::PWMSystem() : Peripheral(PERIPHERAL_PWM)
+{
+}
+
+PWMSystem::~PWMSystem()
+{
+}
+      
+PWMPin* PWMSystem::getPin(int pinNumber)
+{
+      PWMPin* returnPin = (PWMPin*)0;
+      
+      return returnPin;
+}
+
+PWMPin::PWMPin(PWMSystem* pwm, int pinNumber)
+{
+}
+
+PWMPin::~PWMPin()
+{
+}
+      
+void PWMPin::setM(int m)
+{
+}
+
+void PWMPin::setN(int n)
+{
+}
+
+void nanowait(long nanoseconds)
+{
+      timespec ts;
+      ts.tv_sec = 0;
+      ts.tv_nsec = nanoseconds;
+      
+      nanosleep(&ts, &ts);
+}
+
+Button::Button(GPIOPin* pin)
+{
+      this->pin = pin;
+      this->pin->setDirection(IN);
+}
+
+bool Button::pressed()
+{
+      // software de-bouncing
+      int readCounter = 0;
+      int buffer[3] = {-1,-2,-3};
+      bool pressed = false;
+      bool released = false;
+ 
+      //fill the buffer
+      while (!(buffer[0] == buffer[1] && buffer[1] == buffer[2]))
+      {
+            buffer[readCounter++%3] = this->pin->getValue();
+            nanowait(500);
+      }
+      
+      if (buffer[0])
+      {
+            pressed = true;
+            //wait for the button to stop being pressed
+            while (!released)
+            {
+                  buffer[0] = -1;
+                  
+                  while (!(buffer[0] == buffer[1] && buffer[1] == buffer[2]) )
+                  {
+                        buffer[readCounter++%3] = this->pin->getValue();
+                        nanowait(500);
+                  }
+                  
+                  released = !buffer[2];
+            }
+      }
+      
+      return pressed;     
+}
+
+SingleDigitDisplay::SingleDigitDisplay(GPIOPin* pin0, GPIOPin* pin1, GPIOPin* pin2, GPIOPin* pin3)
+{
+}
+
+void SingleDigitDisplay::setDisplay(int displayValue)
+{
+}
+
+Buzzer::Buzzer(PWMPin* pin)
+{
+}
+

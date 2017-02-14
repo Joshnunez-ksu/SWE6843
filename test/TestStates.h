@@ -19,10 +19,13 @@ class StateBeforeGame : public State
 {
 public:
       StateBeforeGame(StateManager* sm, PeripheralFactory* pf);
+      ~StateBeforeGame();
       State* processInput(void* data);
       
  private:
+      Button* theButton;
       GPIOPin* LED;
+      int pressCount;
 };
 
 class StateAfterGame : public State
