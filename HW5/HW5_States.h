@@ -25,6 +25,7 @@ class StateBeforeGame : public State
 
        private:
             Button* startButton;
+            SingleDigitDisplay* playerOneDisplay, playerTwoDisplay;
 };
 
 class StatePreInGame : public State
