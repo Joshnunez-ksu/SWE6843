@@ -32,19 +32,26 @@ class StatePreInGame : public State
 {
       public:
             StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
-            State* processINput(void* data);
+            State* processInput(void* data);
 };
 
-class StateInGame : public State
+class StateWaitForTwo : public State
 {
       public:
-            StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
-            State* processINput(void* data);
+            StateWaitForTwo(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            State* processInput(void* data);
+};
+
+class StateWaitForOne : public State
+{
+      public:
+            StateWaitForOne(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            State* processInput(void* data);
 };
 
 class StatePostGame : public State
 {
       public:
-            StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
-            State* processINput(void* data);
+            StatePostGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            State* processInput(void* data);
 };
