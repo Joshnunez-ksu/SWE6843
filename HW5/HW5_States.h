@@ -11,7 +11,8 @@ class StateInitial : public State
 {
       public:
             StateInitial(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
-            State* processInput(void* data);
+            //State* processInput(void* data);
+            State* setupGPIO();
 };
 
 class StateBeforeGame : public State
