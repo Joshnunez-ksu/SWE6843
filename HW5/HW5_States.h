@@ -54,6 +54,11 @@ class StateWaitForOne : public State
             StateWaitForOne(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup();
             State* process(void* data);
+      
+      private:
+            Button* theButton;
+            SingleDigitDisplay* playerOneDisplay;
+            GPIOPin* countdown, countup;
 };
 
 class StatePostGame : public State
@@ -62,4 +67,8 @@ class StatePostGame : public State
             StatePostGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup();
             State* process(void* data);
+            
+      private:
+            Button* startOver;
+            SingleDigitDisplay playerOneDisplay;
 };
