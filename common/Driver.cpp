@@ -8,9 +8,16 @@ Driver::Driver(StateManager* sm)
 void Driver::run(void* data)
 {
       State* currentState = this->stateManager->getState("StateInitial");
+      State* lastState;
       
       while (currentState)
       {
-            currentState = currentState->processInput(data);
+            if (lastState != currentState)
+            {
+                  currentState->setup();
+            }
+            
+            lastState = currentState;
+            currentState = currentState->process(data);
       }
 }

@@ -11,7 +11,8 @@ class StateInitial : public State
 {
 public:
       StateInitial(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
-      State* processInput(void* data);
+      State* process(void* data);
+      void setup();
       
 };
 
@@ -20,7 +21,8 @@ class StateBeforeGame : public State
 public:
       StateBeforeGame(StateManager* sm, PeripheralFactory* pf);
       ~StateBeforeGame();
-      State* processInput(void* data);
+      State* process(void* data);
+      void setup();
       
  private:
       Button* theButton;
@@ -34,5 +36,6 @@ class StateAfterGame : public State
 {
 public:
       StateAfterGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
-      State* processInput(void* data);
+      State* process(void* data);
+      void setup();
 };

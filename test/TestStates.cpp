@@ -11,7 +11,7 @@ long getTick()
       return (ts.tv_sec * 1000) + (ts.tv_nsec/1000000);
 }
       
-State* StateInitial::processInput(void* data)
+State* StateInitial::process(void* data)
 {
       std::cout << "Start StateInitial\n";
       
@@ -82,6 +82,10 @@ State* StateInitial::processInput(void* data)
       return this->stateManager->getState("StateBeforeGame");
 }
 
+void StateInitial::setup()
+{
+}
+
 StateBeforeGame::StateBeforeGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf)
 {
       this->LED = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(2);
@@ -106,6 +110,10 @@ StateBeforeGame::StateBeforeGame(StateManager* sm, PeripheralFactory* pf) : Stat
 //      this->theDisplay->setDisplay(1);
 }
 
+void StateBeforeGame::setup()
+{
+}
+
 StateBeforeGame::~StateBeforeGame()
 {
       delete this->theButton;
@@ -113,7 +121,7 @@ StateBeforeGame::~StateBeforeGame()
       //delete this->secDisplay;
 }
 
-State* StateBeforeGame::processInput(void* data)
+State* StateBeforeGame::process(void* data)
 {
       State* returnState = this;
       
@@ -151,7 +159,11 @@ State* StateBeforeGame::processInput(void* data)
       return returnState;
 }
 
-State* StateAfterGame::processInput(void* data)
+void StateAfterGame::setup()
+{
+}
+
+State* StateAfterGame::process(void* data)
 {
       GameData* gameData = (GameData*) data;
       std::cout << "Start Tick = " << gameData->startTick << "\n";
