@@ -2,11 +2,17 @@
 #include <iostream>
 #include <time.h>
 
+/* PlayerOneDisplay1 pins */
 const int pin0 = 2;
 const int pin1 = 3;
-const int pin2 = 19;
-const int pin3 = 26;
-const int pin4 = 21;
+const int pin2 = 4;
+const int pin3 = 15;
+
+/* PlayerOneDisplay2 pins */
+const int pin4 = 6; //GPIO 17
+const int pin5 = 7; //GPIO 27
+const int pin6 = 8; //GPIO 22
+const int pin7 = 16; //GPIO 6 
 
 //returns the current number of milliseconds
 long getTick()
@@ -27,15 +33,51 @@ void StateInitial::setup()
 {
       GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
       
-      GPIOPin* pin = gpio->getPin(pin0);
+      GPIOPin* pin;
+      
+      /* START PlayerOneDisplay1 */
+      pin = gpio->getPin(pin0); //First pin: GPIO 2
       //pin->setPull(x);
       pin->setDirection(OUT);
       pin->setValue(LOW);
       
-      pin = gpio->getPin(pin1);
+      pin = gpio->getPin(pin1); //Second pin: GPIO 3
       //pin->setPull(x);
       pin->setDirection(OUT);
       pin->setValue(LOW);
+      
+      pin = gpio->getPin(pin2); //Second pin: GPIO 4
+      //pin->setPull(x);
+      pin->setDirection(OUT);
+      pin->setValue(LOW);
+      
+      pin = gpio->getPin(pin3); //Second pin: GPIO 15
+      //pin->setPull(x);
+      pin->setDirection(OUT);
+      pin->setValue(LOW);
+      /* END PlayerOneDisplay1 */
+      
+      /* START PlayerOneDisplay2 */
+      pin = gpio->getPin(pin0); //First pin: GPIO 2
+      //pin->setPull(x);
+      pin->setDirection(OUT);
+      pin->setValue(LOW);
+      
+      pin = gpio->getPin(pin1); //Second pin: GPIO 3
+      //pin->setPull(x);
+      pin->setDirection(OUT);
+      pin->setValue(LOW);
+      
+      pin = gpio->getPin(pin2); //Second pin: GPIO 4
+      //pin->setPull(x);
+      pin->setDirection(OUT);
+      pin->setValue(LOW);
+      
+      pin = gpio->getPin(pin3); //Second pin: GPIO 15
+      //pin->setPull(x);
+      pin->setDirection(OUT);
+      pin->setValue(LOW);
+      /* END PlayerOneDisplay2 */
       
       //Setup the rest of the pins
 }
