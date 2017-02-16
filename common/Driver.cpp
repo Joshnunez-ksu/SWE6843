@@ -14,7 +14,7 @@ void Driver::run(void* data)
       {
             if (lastState != currentState)
             {
-                  currentState->setup();
+                  currentState->setup(data);
             }
             
             lastState = currentState;

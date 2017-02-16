@@ -6,7 +6,8 @@ Josh Osburn
 
 ********************************************************************************/
 
-#include "HW5_States.h";
+#include "../common/Driver.h"
+#include "HW5_States.h"
 
 int main()
 {

@@ -38,13 +38,7 @@ long getTick()
       return (ts.tv_sec * 1000) + (ts.tv_nsec/1000000);
 }
 
-State::State(StateManager* sm, PeripheralFactory* pf)
-{
-      this->stateManager = sm;
-      this->peripheralFactory = pf;
-}
-
-void StateInitial::setup()
+void StateInitial::setup(void* data)
 {
       GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
       
@@ -100,7 +94,7 @@ State* StateInitial::process(void* data)
       return returnState;
 }
 
-void StateBeforeGame::setup()
+void StateBeforeGame::setup(void* data)
 {
       //Initialize and set game data to 0
       GameData* gameData = (GameData*) data;
@@ -109,7 +103,7 @@ void StateBeforeGame::setup()
       gameData->playerTwoTick = 0;
       
       //Initialize input
-      this->startButton = new Button((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pinStartButton));
+      this->startButton = new Button( ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(pinStartButton));
       
       //Initialize output
       this->playerOneDisplay1 = new SingleDigitDisplay(
@@ -144,7 +138,7 @@ State* StateBeforeGame::process(void* data)
       return returnState;
 }
 
-void StatePreInGame::setup()
+void StatePreInGame::setup(void* data)
 {
       //Initialize input
       //No input
@@ -203,7 +197,7 @@ State* StatePreInGame::process(void* data)
       return returnState;
 }
 
-void StateWaitForOne::setup()
+void StateWaitForOne::setup(void* data)
 {
       //Initialize input
       theButton = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(x);
@@ -244,7 +238,7 @@ State* StateWaitForOne::process(void* data)
       return returnState;
 }
 
-void StatePostGame::setup()
+void StatePostGame::setup(void* data)
 {
       //Initialize input
       startOver = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(x);
