@@ -3,6 +3,7 @@
 struct GameData
 {
       long startTick;
+      long endTick;
       long playerOneTick;
       long playerTwoTick;
 };
@@ -43,6 +44,10 @@ class StatePreInGame : public State
             GPIOPin*  LED4;
             GPIOPin*  LED5;
             GPIOPin*  LED6;
+            
+            GPIOPin* countUpLED;
+            GPIOPin* countDownLED;
+            
             Buzzer* buzzer;
 };
 
@@ -65,8 +70,8 @@ class StateWaitForOne : public State
             Button* theButton;
             SingleDigitDisplay* playerOneDisplay1;
             SingleDigitDisplay* playerOneDisplay2;
-            GPIOPin* countdown;
-            GPIOPin* countup;
+            GPIOPin* countdownLED;
+            GPIOPin* countupLED;
 };
 
 class StatePostGame : public State

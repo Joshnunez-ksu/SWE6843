@@ -168,11 +168,11 @@ void GPIOPin::setValue(VOLTAGE v)
       // use the register and set the voltage
       if (HIGH == v)
       {
-            *this->GPSET |= 1 << this->pinNumber;
+            *this->GPSET |= (1 << this->pinNumber);
       }
       else
       {
-            *this->GPCLR |= 1 << this->pinNumber;
+            *this->GPCLR |= (1 << this->pinNumber);
       }
 }
 
@@ -442,6 +442,11 @@ void SingleDigitDisplay::setDisplay(int displayValue)
             pin3->setValue((displayValue & 0x08)?HIGH:LOW);
 
       }
+}
+
+void SingleDigitDisplay::setDecimal(VOLTAGE v)
+{
+      this->dp->setValue(v);
 }
 
 Buzzer::Buzzer(PWMPin* pin)

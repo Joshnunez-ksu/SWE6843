@@ -1,6 +1,7 @@
 #include "HW5_States.h"
 #include <iostream>
 #include <time.h>
+#include <stdlib.h>
 
 //returns the current number of milliseconds
 long getTick()
@@ -13,6 +14,7 @@ long getTick()
 
 void StateInitial::setup(void* data)
 {
+      std::cout << "StateInitial\n";
       GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
       
       GPIOPin* pin;
@@ -66,24 +68,8 @@ void StateInitial::setup(void* data)
 
 State* StateInitial::process(void* data)
 {
-      State* returnState = this;
-      returnState = this->stateManager->getState("StateBeforeGame");
-      return returnState;
-}
-
-void StateBeforeGame::setup(void* data)
-{
-      //Initialize and set game data to 0
-      GameData* gameData = (GameData*) data;
-      gameData->startTick = 0;
-      gameData->playerOneTick = 0;
-      gameData->playerTwoTick = 0;
-      
-      //Initialize input
-      this->startButton = new Button(((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(20));
-      
       //Initialize output
-      this->playerOneDisplay1 = new SingleDigitDisplay(
+      SingleDigitDisplay disp1(
                                                        ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(2),
                                                        ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(3),
                                                        ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(4),
@@ -91,7 +77,7 @@ void StateBeforeGame::setup(void* data)
                                                        ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(13)
                                                       );
       
-      this->playerOneDisplay2 = new SingleDigitDisplay(
+      SingleDigitDisplay disp2(
                                                        ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(17),
                                                        ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(27),
                                                        ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(22),
@@ -100,8 +86,20 @@ void StateBeforeGame::setup(void* data)
                                                       );
       
       //set playerOneDisplay to 10 seconds
-      this->playerOneDisplay1->setDisplay(1);
-      this->playerOneDisplay2->setDisplay(0);
+      disp1.setDisplay(1);
+      disp2.setDisplay(0);
+      
+      State* returnState = this;
+      returnState = this->stateManager->getState("StateBeforeGame");
+      return returnState;
+}
+
+void StateBeforeGame::setup(void* data)
+{     
+      std::cout << "StateBeforeGame\n"; 
+      //Initialize input
+      this->startButton = new Button(((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(20));
+      
 }
 
 State* StateBeforeGame::process(void* data)
@@ -109,6 +107,7 @@ State* StateBeforeGame::process(void* data)
       State* returnState = this;
       if(this->startButton->pressed())
       {
+            std::cout << "BeforeGAme button press\n";
             returnState = this->stateManager->getState("StatePreInGame");
       }
       
@@ -117,6 +116,39 @@ State* StateBeforeGame::process(void* data)
 
 void StatePreInGame::setup(void* data)
 {
+std::cout << "StatePreInGame\n";
+      //Initialize and set game data to 0
+      GameData* gameData = (GameData*) data;
+      gameData->startTick = 0;
+      gameData->playerOneTick = 0;
+      gameData->playerTwoTick = 0;
+
+      this->countUpLED = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(23);
+      this->countUpLED->setValue(LOW);
+      
+      this->countDownLED = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(24);
+      this->countDownLED->setValue(HIGH);
+      
+      SingleDigitDisplay disp1(
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(2),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(3),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(4),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(5),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(13)
+                                                      );
+      
+      SingleDigitDisplay disp2(
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(17),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(27),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(22),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(6),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(19)
+                                                      );
+      
+      //set playerOneDisplay to 10 seconds
+      disp1.setDisplay(1);
+      disp2.setDisplay(0);
+            
       //Initialize input
       //No input
       
@@ -169,6 +201,12 @@ State* StatePreInGame::process(void* data)
        * LED6.write(LOW);
        */
       
+      for(int i; i < 4; i++)
+      {
+            nanowait(500000);
+            //buzz
+      }
+      
       returnState = this->stateManager->getState("StateWaitForOne");
       
       return returnState;
@@ -176,6 +214,9 @@ State* StatePreInGame::process(void* data)
 
 void StateWaitForOne::setup(void* data)
 {
+std::cout << "StateWaitForOne\n";
+      ((GameData* ) data)->startTick = getTick();
+      
       //Initialize input
       theButton = new Button(((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(21));
       
@@ -195,33 +236,43 @@ void StateWaitForOne::setup(void* data)
                                                        ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(6),
                                                        ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(19)
                                                       );
-      countdown = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(23);
-      countup = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(24);
+                                                      
+      this->playerOneDisplay1->setDecimal(HIGH);
+      
+      this->countdownLED = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(24);
+      this->countdownLED->setValue(HIGH);
+      this->countupLED = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(23);
+      this->countupLED->setValue(LOW);
 }
 
 State* StateWaitForOne::process(void* data)
 {
       State* returnState = this;
+      GameData* gameData = (GameData*) data;
+      int seconds = 0;
+      int tenths = 0;
       
-      //Start timer countdown
-      /*
-       * countdown.write(HIGH);
-       * if(timer is counting up)
-       * {
-       *    countdown.write(LOW);
-       *    countup.write(HIGH);
-       * }
-       * else if(timer has counted up and reached zero) countup.write(LOW);
-       */
-      //write time to display
-      ((GameData*) data)->startTick = getTick();
+      //display the current countdown
+      long tickDiff = getTick() - gameData->startTick;
+      tickDiff = abs(10000 - tickDiff);
       
+      seconds = tickDiff / 1000;
+      tenths = ((tickDiff / 100) - seconds * 10);
+      
+      this->playerOneDisplay1->setDisplay(seconds);
+      this->playerOneDisplay2->setDisplay(tenths);
+      
+      //set the count down/up leds
+      
+      //check if button pressed
       if(this->theButton->pressed())
       {
-            //Stop countdown
-            //countdown.write(LOW);
-            //countdown.write(LOW);
-            //Log current time as player's time
+            gameData->endTick = getTick();
+            returnState = this->stateManager->getState("StatePostGame");
+      }
+      
+      if (tickDiff >= 10000)
+      {
             returnState = this->stateManager->getState("StatePostGame");
       }
       
@@ -230,13 +281,14 @@ State* StateWaitForOne::process(void* data)
 
 void StatePostGame::setup(void* data)
 {
-      /*
+      std::cout << "StatePostGame\n";
+      
       //Initialize input
-      startOver = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(20);
+      this->startOver = new Button(((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(20));
       
       //Initialize output
       
-      playerOneDisplay1 = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(x);
+     /* playerOneDisplay1 = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(x);
       playerOneDisplay2 = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(x);
       */
 }

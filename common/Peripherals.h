@@ -17,6 +17,8 @@
 
 #define BLOCK_SIZE      (4*1024)
 
+void nanowait(long nanoseconds);
+
 class Peripheral
 {
 public:
@@ -156,6 +158,7 @@ class SingleDigitDisplay
 public:
       SingleDigitDisplay(GPIOPin* pin0, GPIOPin* pin1, GPIOPin* pin2, GPIOPin* pin3, GPIOPin* dp);
       void setDisplay(int displayValue);
+      void setDecimal(VOLTAGE v);
       
 private:
       GPIOPin* pin0;
