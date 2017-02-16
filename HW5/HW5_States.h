@@ -25,8 +25,6 @@ class StateBeforeGame : public State
 
        private:
             Button* startButton;
-            GPIOPin* LED;
-            int pressCount;
 };
 
 class StatePreInGame : public State
