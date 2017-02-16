@@ -9,27 +9,35 @@ struct GameData
 
 class StateInitial : public State
 {
-public:
-      StateInitial(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
-      State* processInput(void* data);
+      public:
+            StateInitial(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
+            State* processInput(void* data);
 };
 
 class StateBeforeGame : public State
 {
-public:
-      StateBeforeGame(StateManager* sm, PeripheralFactory* pf);
-      ~StateBeforeGame();
-      State* processInput(void* data);
-      
- private:
-      Button* theButton;
-      GPIOPin* LED;
-      int pressCount;
+      public:
+            StateBeforeGame(StateManager* sm, PeripheralFactory* pf);
+            ~StateBeforeGame();
+            State* processInput(void* data);
+
+       private:
+            Button* theButton;
+            GPIOPin* LED;
+            int pressCount;
 };
 
-class StateAfterGame : public State
+class StatePreInGame : public State
 {
-public:
-      StateAfterGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
-      State* processInput(void* data);
+
+};
+
+class StateInGame : public State
+{
+
+};
+
+class StatePostGame : public State
+{
+
 };
