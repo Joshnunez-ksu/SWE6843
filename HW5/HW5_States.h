@@ -22,7 +22,7 @@ class StateBeforeGame : public State
             State* processInput(void* data);
 
        private:
-            Button* theButton;
+            Button* startButton;
             GPIOPin* LED;
             int pressCount;
 };
