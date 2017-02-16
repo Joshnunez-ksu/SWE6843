@@ -11,15 +11,16 @@ class StateInitial : public State
 {
       public:
             StateInitial(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
-            //State* processInput(void* data);
-            State* setupGPIO();
+            void setup();
+            State* processInput(void* data);
 };
 
 class StateBeforeGame : public State
 {
       public:
-            StateBeforeGame(StateManager* sm, PeripheralFactory* pf);
+            StateBeforeGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             ~StateBeforeGame();
+            void setup();
             State* processInput(void* data);
 
        private:
@@ -32,6 +33,7 @@ class StatePreInGame : public State
 {
       public:
             StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            void setup();
             State* processInput(void* data);
 };
 
@@ -39,6 +41,7 @@ class StateWaitForTwo : public State
 {
       public:
             StateWaitForTwo(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            void setup();
             State* processInput(void* data);
 };
 
@@ -46,6 +49,7 @@ class StateWaitForOne : public State
 {
       public:
             StateWaitForOne(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            void setup();
             State* processInput(void* data);
 };
 
@@ -53,5 +57,6 @@ class StatePostGame : public State
 {
       public:
             StatePostGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            void setup();
             State* processInput(void* data);
 };
