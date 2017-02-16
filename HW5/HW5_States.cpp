@@ -5,14 +5,29 @@
 /* PlayerOneDisplay1 pins */
 const int pin0 = 2;
 const int pin1 = 3;
-const int pin2 = 4;
-const int pin3 = 15;
+const int pin2 = 4; //GPIO 4
+const int pin3 = 5; //GPIO 5
+const int pin4 = 13; //GPIO 13. Decimal.
 
 /* PlayerOneDisplay2 pins */
-const int pin4 = 6; //GPIO 17
-const int pin5 = 7; //GPIO 27
-const int pin6 = 8; //GPIO 22
-const int pin7 = 16; //GPIO 6 
+const int pin5 = 17; //GPIO 17
+const int pin6 = 27; //GPIO 27
+const int pin7 = 22; //GPIO 22
+const int pin8 = 6; //GPIO 6
+const int pin9 = 19; //GPIO 19. Decimal.
+
+/* Buzzer pin */
+//const int pinBuzzer = ?;
+
+/* PlayerOneButton */
+const int pinPlayerOneButton = 21;
+
+/* Start button */
+const int pinStartButton = 20;
+
+/* Countup & Countdown pins */
+const int pinCountup = 23; //GPIO 23
+const int pinCountdown = 24; //GPIO 24
 
 //returns the current number of milliseconds
 long getTick()
@@ -36,46 +51,42 @@ void StateInitial::setup()
       GPIOPin* pin;
       
       /* START PlayerOneDisplay1 */
-      pin = gpio->getPin(pin0); //First pin: GPIO 2
+      pin = gpio->getPin(pin0);
       //pin->setPull(x);
-      pin->setDirection(OUT);
       pin->setValue(LOW);
       
-      pin = gpio->getPin(pin1); //Second pin: GPIO 3
+      pin = gpio->getPin(pin1);
       //pin->setPull(x);
-      pin->setDirection(OUT);
       pin->setValue(LOW);
       
-      pin = gpio->getPin(pin2); //Second pin: GPIO 4
+      pin = gpio->getPin(pin2);
       //pin->setPull(x);
-      pin->setDirection(OUT);
       pin->setValue(LOW);
       
-      pin = gpio->getPin(pin3); //Second pin: GPIO 15
+      pin = gpio->getPin(pin3);
       //pin->setPull(x);
-      pin->setDirection(OUT);
+      pin->setValue(LOW);
+      
+      pin = gpio->getPin(pin4);
+      //pin->setPull(x);
       pin->setValue(LOW);
       /* END PlayerOneDisplay1 */
       
       /* START PlayerOneDisplay2 */
       pin = gpio->getPin(pin0); //First pin: GPIO 2
       //pin->setPull(x);
-      pin->setDirection(OUT);
       pin->setValue(LOW);
       
       pin = gpio->getPin(pin1); //Second pin: GPIO 3
       //pin->setPull(x);
-      pin->setDirection(OUT);
       pin->setValue(LOW);
       
       pin = gpio->getPin(pin2); //Second pin: GPIO 4
       //pin->setPull(x);
-      pin->setDirection(OUT);
       pin->setValue(LOW);
       
       pin = gpio->getPin(pin3); //Second pin: GPIO 15
       //pin->setPull(x);
-      pin->setDirection(OUT);
       pin->setValue(LOW);
       /* END PlayerOneDisplay2 */
       
@@ -98,21 +109,37 @@ void StateBeforeGame::setup()
       gameData->playerTwoTick = 0;
       
       //Initialize input
-      this->startButton = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(x);
+      this->startButton = new Button((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pinStartButton));
       
       //Initialize output
-      playerOneDisplay1 = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(x);
-      playerOneDisplay2 = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(x);
-      //playerTwoDisplay = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(x);
+      this->playerOneDisplay1 = new SingleDigitDisplay(
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin0),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin1),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin2),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin3),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin4)
+                                                      );
+      
+      this->playerOneDisplay2 = new SingleDigitDisplay(
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin5),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin6),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin7),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin8),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(pin9)
+                                                      );
       
       //set playerOneDisplay to 10 seconds
-      //set playerTwoDisplay to 10 seconds
+      this->playerOneDisplay1->setDisplay(1);
+      this->playerOneDisplay2->setDisplay(0);
 }
 
 State* StateBeforeGame::process(void* data)
 {
       State* returnState = this;
-      if(this->startButton->pressed()) returnState = this->stateManager->getState("StatePreInGame");
+      if(this->startButton->pressed())
+      {
+            returnState = this->stateManager->getState("StatePreInGame");
+      }
       
       return returnState;
 }
