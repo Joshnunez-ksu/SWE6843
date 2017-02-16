@@ -25,7 +25,7 @@ class StateBeforeGame : public State
 
        private:
             Button* startButton;
-            SingleDigitDisplay* playerOneDisplay, playerTwoDisplay;
+            SingleDigitDisplay* playerOneDisplay1, playerOneDisplay2;
 };
 
 class StatePreInGame : public State
@@ -57,7 +57,7 @@ class StateWaitForOne : public State
       
       private:
             Button* theButton;
-            SingleDigitDisplay* playerOneDisplay;
+            SingleDigitDisplay* playerOneDisplay1, playerOneDisplay2;
             GPIOPin* countdown, countup;
 };
 
@@ -70,5 +70,5 @@ class StatePostGame : public State
             
       private:
             Button* startOver;
-            SingleDigitDisplay playerOneDisplay;
+            SingleDigitDisplay playerOneDisplay1, playerOneDisplay2;
 };
