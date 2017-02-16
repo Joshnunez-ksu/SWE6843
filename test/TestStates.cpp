@@ -68,7 +68,7 @@ State* StateInitial::process(void* data)
       pin->setValue(LOW);
       */
       // initialize GPIO 21   ** :P  ** No extra points for making ALL group members to participate :P 
-      pin = gpio->getPin(21);
+      pin = gpio->getPin(20);
       pin->setPull(DOWN);
       pin->setDirection(IN);
       
@@ -89,7 +89,7 @@ void StateInitial::setup()
 StateBeforeGame::StateBeforeGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf)
 {
       this->LED = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(2);
-      this->theButton = new Button(((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(21));
+      this->theButton = new Button(((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(20));
       this->pressCount = 0;
       this->theDisplay = new SingleDigitDisplay(
                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(2),
