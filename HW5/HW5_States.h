@@ -29,15 +29,21 @@ class StateBeforeGame : public State
 
 class StatePreInGame : public State
 {
-
+      public:
+            StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            State* processINput(void* data);
 };
 
 class StateInGame : public State
 {
-
+      public:
+            StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            State* processINput(void* data);
 };
 
 class StatePostGame : public State
 {
-
+      public:
+            StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+            State* processINput(void* data);
 };
