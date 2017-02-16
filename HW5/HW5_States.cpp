@@ -84,19 +84,19 @@ void StateBeforeGame::setup(void* data)
       
       //Initialize output
       this->playerOneDisplay1 = new SingleDigitDisplay(
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(2),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(3),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(4),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(5),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(13)
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(2),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(3),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(4),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(5),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(13)
                                                       );
       
       this->playerOneDisplay2 = new SingleDigitDisplay(
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(17),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(27),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(22),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(6),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(19)
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(17),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(27),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(22),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(6),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(19)
                                                       );
       
       //set playerOneDisplay to 10 seconds
@@ -181,19 +181,19 @@ void StateWaitForOne::setup(void* data)
       
       //Initialize output
       this->playerOneDisplay1 = new SingleDigitDisplay(
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(2),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(3),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(4),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(5),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(13)
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(2),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(3),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(4),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(5),
+                                                       ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(13)
                                                       );
       
       this->playerOneDisplay2 = new SingleDigitDisplay(
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(17),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(27),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(22),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(6),
-                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO)->getPin(19)
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(17),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(27),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(22),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(6),
+                                                       (GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(19)
                                                       );
       countdown = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(23);
       countup = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(24);
