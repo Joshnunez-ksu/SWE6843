@@ -11,7 +11,8 @@ class State
 {
 public:
       State(StateManager* sm, PeripheralFactory* pf);
-      virtual State* processInput(void* data) = 0;
+      virtual void setup();
+      virtual State* process(void* data) = 0;
 
 protected:
       StateManager* stateManager;
