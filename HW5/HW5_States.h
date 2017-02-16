@@ -12,7 +12,7 @@ class StateInitial : public State
       public:
             StateInitial(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
             void setup();
-            State* processInput(void* data);
+            State* process(void* data);
 };
 
 class StateBeforeGame : public State
@@ -21,7 +21,7 @@ class StateBeforeGame : public State
             StateBeforeGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             ~StateBeforeGame();
             void setup();
-            State* processInput(void* data);
+            State* process(void* data);
 
        private:
             Button* startButton;
@@ -34,7 +34,7 @@ class StatePreInGame : public State
       public:
             StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup();
-            State* processInput(void* data);
+            State* process(void* data);
 };
 
 class StateWaitForTwo : public State
@@ -42,7 +42,7 @@ class StateWaitForTwo : public State
       public:
             StateWaitForTwo(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup();
-            State* processInput(void* data);
+            State* process(void* data);
 };
 
 class StateWaitForOne : public State
@@ -50,7 +50,7 @@ class StateWaitForOne : public State
       public:
             StateWaitForOne(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup();
-            State* processInput(void* data);
+            State* process(void* data);
 };
 
 class StatePostGame : public State
@@ -58,5 +58,5 @@ class StatePostGame : public State
       public:
             StatePostGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup();
-            State* processInput(void* data);
+            State* process(void* data);
 };
