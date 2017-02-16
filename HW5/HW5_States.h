@@ -34,6 +34,10 @@ class StatePreInGame : public State
             StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup();
             State* process(void* data);
+            
+      private:
+            GPIOPin* LED1, LED2, LED3, LED4, LED5, LED6;
+            Buzzer* buzzer;
 };
 
 class StateWaitForTwo : public State
