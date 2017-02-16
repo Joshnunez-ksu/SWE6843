@@ -10,7 +10,7 @@ struct GameData
 class StateInitial : public State
 {
       public:
-            StateInitial(StateManager* sm, PeripheralFactory* pf) : State(sm, pf){};
+            StateInitial(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup();
             State* process(void* data);
 };
