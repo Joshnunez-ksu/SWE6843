@@ -6,6 +6,21 @@ struct GameData
       long endTick;
       long playerOneTick;
       long playerTwoTick;
+      
+      Button* startButton;
+      Button* playerOneButton;
+      Button* playerTwoButton;
+      SingleDigitDisplay* playerOneDisplay1;
+      SingleDigitDisplay* playerOneDisplay2;
+      SingleDigitDisplay* playerTwoDisplay1;
+      SingleDigitDisplay* playerTwoDisplay2;
+      
+      GPIOPin*[] ledTree; //make class for ledTree
+      
+      GPIOPin* countUpLED;
+      GPIOPin* countDownLED;
+      
+      Buzzer* buzzer;
 };
 
 class StateInitial : public State
@@ -25,9 +40,9 @@ class StateBeforeGame : public State
             State* process(void* data);
 
        private:
-            Button* startButton;
+            /*Button* startButton;
             SingleDigitDisplay* playerOneDisplay1;
-            SingleDigitDisplay* playerOneDisplay2;
+            SingleDigitDisplay* playerOneDisplay2;*/
 };
 
 class StatePreInGame : public State
@@ -38,7 +53,7 @@ class StatePreInGame : public State
             State* process(void* data);
             
       private:
-            GPIOPin* LED1;
+            /*GPIOPin* LED1;
             GPIOPin* LED2;
             GPIOPin*  LED3;
             GPIOPin*  LED4;
@@ -48,7 +63,7 @@ class StatePreInGame : public State
             GPIOPin* countUpLED;
             GPIOPin* countDownLED;
             
-            Buzzer* buzzer;
+            Buzzer* buzzer;*/
 };
 
 class StateWaitForTwo : public State
@@ -67,11 +82,11 @@ class StateWaitForOne : public State
             State* process(void* data);
       
       private:
-            Button* theButton;
+            /*Button* theButton;
             SingleDigitDisplay* playerOneDisplay1;
             SingleDigitDisplay* playerOneDisplay2;
             GPIOPin* countdownLED;
-            GPIOPin* countupLED;
+            GPIOPin* countupLED;*/
 };
 
 class StatePostGame : public State
@@ -82,7 +97,7 @@ class StatePostGame : public State
             State* process(void* data);
             
       private:
-            Button* startOver;
+            /*Button* startOver;
             SingleDigitDisplay* playerOneDisplay1;
-            SingleDigitDisplay* playerOneDisplay2;
+            SingleDigitDisplay* playerOneDisplay2;*/
 };
