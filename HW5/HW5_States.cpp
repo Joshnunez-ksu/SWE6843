@@ -16,6 +16,14 @@ void StateInitial::setup(void* data)
 {
       std::cout << "StateInitial\n";
       GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
+      GameData* gameData = (GameData*) data;
+      
+      //Initialize startButton
+      gameData->startButton = new Button(gpio->getPin(20));
+      //Initialize playerOneButton
+      gameData->playerOneButton = new Button(gpio->getPin(21));
+      //Initialize playerTwoButton
+      gameData->playerTwoButton = new Button(gpio->getPin(x));
       
       GPIOPin* pin;
       
