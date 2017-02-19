@@ -73,7 +73,25 @@ State* StateBeforeGame::process(void* data)
 {
       GameData* gameData = (GameData*) data;
       State* returnState = this;
-      if(gameData->startButton->pressed())
+      
+      if(gameData->playerOneButton->pressed())
+      {
+            returnState = (State*) 0;
+            delete gameData->startButton;
+            delete gameData->playerOneButton;
+            delete gameData->playerTwoButton;
+            delete gameData->playerOneDisplay1;
+            delete gameData->playerOneDisplay2;
+            delete gameData->playerTwoDisplay1;
+            delete gameData->playerTwoDisplay2;
+            delete gameData->playerOneLED;
+            delete gameData->playerTwoLED;
+            delete gameData->countUpLED;
+            delete gameData->countDownLED;
+            //delete gameData->ledTree;
+            delete gameData->buzzer;
+      }
+      else if(gameData->startButton->pressed())
       {
             //std::cout << "BeforeGame button press\n";
             returnState = this->stateManager->getState("StatePreInGame");
