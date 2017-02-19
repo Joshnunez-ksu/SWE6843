@@ -41,11 +41,6 @@ class StateBeforeGame : public State
             ~StateBeforeGame();
             void setup(void* data);
             State* process(void* data);
-
-       private:
-            /*Button* startButton;
-            SingleDigitDisplay* playerOneDisplay1;
-            SingleDigitDisplay* playerOneDisplay2;*/
 };
 
 class StatePreInGame : public State
@@ -54,19 +49,6 @@ class StatePreInGame : public State
             StatePreInGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup(void* data);
             State* process(void* data);
-            
-      private:
-            /*GPIOPin* LED1;
-            GPIOPin* LED2;
-            GPIOPin*  LED3;
-            GPIOPin*  LED4;
-            GPIOPin*  LED5;
-            GPIOPin*  LED6;
-            
-            GPIOPin* countUpLED;
-            GPIOPin* countDownLED;
-            
-            Buzzer* buzzer;*/
 };
 
 class StateWaitForTwo : public State
@@ -83,13 +65,6 @@ class StateWaitForOne : public State
             StateWaitForOne(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup(void* data);
             State* process(void* data);
-      
-      private:
-            /*Button* theButton;
-            SingleDigitDisplay* playerOneDisplay1;
-            SingleDigitDisplay* playerOneDisplay2;
-            GPIOPin* countdownLED;
-            GPIOPin* countupLED;*/
 };
 
 class StatePostGame : public State
@@ -98,9 +73,4 @@ class StatePostGame : public State
             StatePostGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
             void setup(void* data);
             State* process(void* data);
-            
-      private:
-            /*Button* startOver;
-            SingleDigitDisplay* playerOneDisplay1;
-            SingleDigitDisplay* playerOneDisplay2;*/
 };
