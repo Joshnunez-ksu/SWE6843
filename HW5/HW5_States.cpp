@@ -27,15 +27,15 @@ void StateInitial::setup(void* data)
       gameData->playerOneDisplay1 = new SingleDigitDisplay(gpio->getPin(2), gpio->getPin(3), gpio->getPin(4), gpio->getPin(5),
                                                           gpio->getPin(13));
       gameData->playerOneDisplay2 = new SingleDigitDisplay(gpio->getPin(17), gpio->getPin(27), gpio->getPin(22), gpio->getPin(6),
-                                                          gpio->getPin(19));
-      gameData->playerTwoDisplay1 = nullptr;/*new SingleDigitDisplay(gpio->getPin(17), gpio->getPin(27), gpio->getPin(22), gpio->getPin(6),
-                                                          gpio->getPin(19));*/
+                                                          gpio->getPin(13));
+      gameData->playerTwoDisplay1 = new SingleDigitDisplay(gpio->getPin(19), gpio->getPin(18), gpio->getPin(26), gpio->getPin(24),
+                                                          gpio->getPin(13));
       gameData->playerTwoDisplay2 = new SingleDigitDisplay(gpio->getPin(10), gpio->getPin(9), gpio->getPin(11), gpio->getPin(8),
-                                                          gpio->getPin(0));
+                                                          gpio->getPin(13));
       
       //Initialize LEDs
-      //gameData->playerOneLED = new GPIOPin(gpio->getPin(x));
-      //gameData->playerTwoLED = new GPIOPin(gpio->getPin(x));
+      gameData->playerOneLED = new GPIOPin(gpio->getPin(14));
+      gameData->playerTwoLED = new GPIOPin(gpio->getPin(15));
       gameData->countUpLED = new GPIOPin(gpio->getPin(23));
       gameData->countDownLED = new GPIOPin(gpio->getPin(24));
       gameData->ledTree = nullptr;/*{ new GPIOPin(),
@@ -52,8 +52,12 @@ State* StateInitial::process(void* data)
       GameData* gameData = (GameData*) data;
       
       //set playerOneDisplay to 10 seconds
-      gameData->playerOneDisplay1.setDisplay(1);
-      gameData->playerOneDisplay2.setDisplay(0);
+      gameData->playerOneDisplay1->setDisplay(1);
+      gameData->playerOneDisplay2->setDisplay(0);
+      
+      //set playerTwoDisplay to 10 seconds
+      gameData->playerTwoDisplay2->setDisplay(1);
+      gameData->playerTwoDisplay2->setDisplay(0);
       
       State* returnState = this;
       returnState = this->stateManager->getState("StateBeforeGame");
@@ -81,9 +85,8 @@ State* StateBeforeGame::process(void* data)
 void StatePreInGame::setup(void* data)
 {
       std::cout << "StatePreInGame\n";
-      
-      //Initialize and set game data to 0
       GameData* gameData = (GameData*) data;
+      
       gameData->startTick = 0;
       gameData->playerOneTick = 0;
       gameData->playerTwoTick = 0;
@@ -146,9 +149,9 @@ void StateWaitForOne::setup(void* data)
 {
       std::cout << "StateWaitForOne\n";
       GameData* gameData = (GameData*) data;
-      gameData->startTick = getTick();
+      //gameData->startTick = getTick();
                                                       
-      gameData->playerOneDisplay1->setDecimal(HIGH);
+      //gameData->playerOneDisplay1->setDecimal(HIGH);
 }
 
 State* StateWaitForOne::process(void* data)
@@ -159,8 +162,68 @@ State* StateWaitForOne::process(void* data)
       int seconds = 0;
       int tenths = 0;
       
+      long trueTickDiff = getTick() - gameData->startTick; //To switch the countUpLED & countDownLED
+      long tickDiff = getTick() - gameData->startTick;
+      tickDiff = abs(10000 - tickDiff);
+      
+      seconds = tickDiff / 1000;
+      tenths = ((tickDiff / 100) - seconds * 10);
+      
+      if(trueTickDiff <= 0 && gameData->countDownLED->getValue() != LOW)
+      {
+            gameData->countDownLED->setValue(LOW);
+      }
+      
+      if(gameData->playerOneTick == 0)
+      {
+            gameData->playerOneDisplay1->setDisplay(seconds);
+            gameData->playerOneDisplay2->setDisplay(tenths);
+            if(gameData->playerOneButton->pressed())
+            {
+                  gameData->endTick = getTick();
+                  returnState = this->stateManager->getState("StatePostGame");
+            }
+      }
+      else if(gameData->playerTwoTick == 0)
+      {
+            gameData->playerTwoDisplay1->setDisplay(seconds);
+            gameData->playerTwoDisplay2->setDisplay(tenths);
+            if(gameData->playerTwoButton->pressed())
+            {
+                  gameData->endTick = getTick();
+                  returnState = this->stateManager->getState("StatePostGame");
+            }
+      }
+      
+      if (tickDiff >= 10000)
+      {
+            returnState = this->stateManager->getState("StatePostGame");
+      }
+      
+      return returnState;
+}
+
+void StateWaitForTwo::setup(void* data)
+{
+      std::cout << "StateWaitForTwo\n";
+      GameData* gameData = (GameData*) data;
+      gameData->startTick = getTick();
+                                                      
+      gameData->playerOneDisplay1->setDecimal(HIGH);
+      gameData->countDownLED-setValue(HIGH);
+}
+
+State* StateWaitForTwo::process(void* data)
+{
+      GameData* gameData = (GameData*) data;
+      State* returnState = this;
+      
+      int seconds = 0;
+      int tenths = 0;
+      
       //display the current countdown
       long tickDiff = getTick() - gameData->startTick;
+      long trueTickDiff = getTick() - gameData->startTick; //To switch the countUpLED & countDownLED
       tickDiff = abs(10000 - tickDiff);
       
       seconds = tickDiff / 1000;
@@ -169,13 +232,24 @@ State* StateWaitForOne::process(void* data)
       gameData->playerOneDisplay1->setDisplay(seconds);
       gameData->playerOneDisplay2->setDisplay(tenths);
       
-      //set the count down/up leds
+      gameData->playerTwoDisplay1->setDisplay(seconds);
+      gameData->playerTwoDisplay2->setDisplay(tenths);
+      
+      if(trueTickDiff <= 0 && gameData->countDownLED->getValue() != LOW)
+      {
+            gameData->countDownLED->setValue(LOW);
+      }
       
       //check if button pressed
       if(gameData->playerOneButton->pressed())
       {
-            gameData->endTick = getTick();
-            returnState = this->stateManager->getState("StatePostGame");
+            gameData->playerOneTick = getTick();
+            returnState = this->stateManager->getState("StateWaitForOne");
+      }
+      else if(gameData->playerTwoButton->pressed())
+      {
+            gameData->playerTwoTick = getTick();
+            returnState = this->stateManager->getState("StateWaitForOne");
       }
       
       if (tickDiff >= 10000)
