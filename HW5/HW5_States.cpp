@@ -44,7 +44,7 @@ void StateInitial::setup(void* data)
                             new GPIOPin(),
                             new GPIOPin() };*/
       //Initialize buzzer
-      gameData->buzzer = nullptr;//new Buzzer(gpio->getPin(x));
+      gameData->buzzer = new Buzzer(gpio->getPin(12));
 }
 
 State* StateInitial::process(void* data)
