@@ -15,10 +15,10 @@ struct GameData
       SingleDigitDisplay* playerTwoDisplay1;
       SingleDigitDisplay* playerTwoDisplay2;
       
-      GPIOPin*[] ledTree; //make class for ledTree
-      
       GPIOPin* countUpLED;
       GPIOPin* countDownLED;
+      
+      GPIOPin*[6] ledTree; //make class for ledTree
       
       Buzzer* buzzer;
 };
