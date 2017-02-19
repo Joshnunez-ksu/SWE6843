@@ -9,10 +9,11 @@
 
 using namespace std;
 
-void nanowait(long nanoseconds)
+void nanowait(long seconds, long nanoseconds)
 {
+      
       timespec ts;
-      ts.tv_sec = 0;
+      ts.tv_sec = seconds;
       ts.tv_nsec = nanoseconds;
       
       nanosleep(&ts, &ts);
@@ -28,7 +29,14 @@ PeripheralFactory::~PeripheralFactory()
             it != this->peripheralMap.end();
             ++it)
       {
-            delete it->second;
+            if (it->second->getName() == PERIPHERAL_GPIO)
+            {
+                  delete ((GPIOSystem*) it->second);
+            }
+            else if (it->second->getName() == PERIPHERAL_PWM)
+            {
+                  delete ((PWMSystem*) it->second);
+            }
       }
 }
 
@@ -113,7 +121,7 @@ GPIOSystem::~GPIOSystem()
             it != this->pinMap.end();
             ++it)
       {
-            delete it->second;
+            delete (GPIOPin*) it->second;
       }
       
       munmap(this->memoryMap, BLOCK_SIZE);
@@ -377,7 +385,7 @@ bool Button::pressed()
       while (!(buffer[0] == buffer[1] && buffer[1] == buffer[2]))
       {
             buffer[readCounter++%3] = this->pin->getValue();
-             nanowait(500000);
+             nanowait(0, 500000);
       }
       
 //      pressed = !buffer[0];
@@ -393,7 +401,7 @@ bool Button::pressed()
                   while (!(buffer[0] == buffer[1] && buffer[1] == buffer[2]) )
                   {
                         buffer[readCounter++%3] = this->pin->getValue();
-                        nanowait(500000);
+                        nanowait(0, 500000);
                   }
                   
                   //released = buffer[2];
@@ -417,6 +425,12 @@ SingleDigitDisplay::SingleDigitDisplay(GPIOPin* pin0, GPIOPin* pin1, GPIOPin* pi
       this->pin2->setDirection(OUT);
       this->pin3->setDirection(OUT);
       this->dp->setDirection(OUT);
+      
+      this->pin0->setValue(LOW);
+      this->pin1->setValue(LOW);
+      this->pin2->setValue(LOW);
+      this->pin3->setValue(LOW);
+      this->dp->setValue(LOW);
 }
 
 void SingleDigitDisplay::setDisplay(int displayValue)
@@ -451,4 +465,50 @@ void SingleDigitDisplay::setDecimal(VOLTAGE v)
 
 Buzzer::Buzzer(PWMPin* pin)
 {
+}
+
+// period = 1 / frequency
+SoftBuzzer::SoftBuzzer(GPIOPin* gpio)
+{
+      this->pin = gpio;
+      this->pin->setDirection(OUT);
+      
+      this->mFrequency = 0;
+}
+
+void SoftBuzzer::setFrequency(int f)
+{
+      this->mFrequency = f;
+}
+
+void SoftBuzzer::enable(long duration)
+{
+      int seconds = duration / 1000;
+      int milliseconds = duration - (seconds * 1000);
+      
+      this->pin->setValue(HIGH);
+      nanowait(seconds, milliseconds * 1000000);
+      this->pin->setValue(LOW);
+      
+      /*
+      bool on = true;
+
+      this->pin->setValue(HIGH);
+      long timesPerSec = 1000000/this->mFrequency;
+      
+      int loopCount = ((duration / 1000) * this->mFrequency) * 2;
+      
+      timespec ts;
+      ts.tv_sec = 0;
+      ts.tv_nsec = timesPerSec / 2;
+            
+      while (loopCount-- > 0)
+      {
+            on = !on;
+            nanosleep(&ts, &ts);
+            this->pin->setValue((VOLTAGE) on );
+      }
+      
+      this->pin->setValue(LOW);
+      */
 }

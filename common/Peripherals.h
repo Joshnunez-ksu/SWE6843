@@ -178,4 +178,18 @@ private:
       PWMPin* pin;
 };
 
+class SoftBuzzer
+{
+public:
+      SoftBuzzer(GPIOPin* pin);
+      
+      void setFrequency(int f);
+      void enable(long d);
+      
+private:
+      GPIOPin* pin;
+      int mFrequency;
+      
+};
+
 #endif

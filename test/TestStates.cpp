@@ -22,57 +22,31 @@ State* StateInitial::process(void* data)
       gameData->playerTwoTick = 0;
 
       GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
-      
-      // initialize GPIO
-      // display pins
-      GPIOPin* pin = gpio->getPin(2);
-      pin->setPull(DOWN);
-      pin->setDirection(OUT);
-      pin->setValue(LOW);
-      
-      pin = gpio->getPin(3);
-      pin->setPull(DOWN);
-      pin->setDirection(OUT);
-      pin->setValue(LOW);
 
-      pin = gpio->getPin(4);
-      pin->setPull(DOWN);
-      pin->setDirection(OUT);
-      pin->setValue(LOW);
+      gameData->displayOne = new SingleDigitDisplay(gpio->getPin(2), gpio->getPin(3), gpio->getPin(4), gpio->getPin(5), gpio->getPin(13));
+      gameData->displayTwo = new SingleDigitDisplay(gpio->getPin(17), gpio->getPin(27), gpio->getPin(22), gpio->getPin(6), gpio->getPin(13));
+      gameData->displayThree = new SingleDigitDisplay(gpio->getPin(10), gpio->getPin(9), gpio->getPin(11), gpio->getPin(8), gpio->getPin(13));
+      gameData->displayFour = new SingleDigitDisplay(gpio->getPin(19), gpio->getPin(18), gpio->getPin(26), gpio->getPin(24), gpio->getPin(13));
       
-      pin = gpio->getPin(5);
-      pin->setPull(DOWN);
-      pin->setDirection(OUT);
-      pin->setValue(LOW);
+      gameData->buttonOne = new Button(gpio->getPin(20));
+      gameData->buttonTwo = new Button(gpio->getPin(21));
+      gameData->buttonThree = new Button(gpio->getPin(16));
       
-      //display 2
-      /*
-      pin = gpio->getPin(22);
-      pin->setPull(DOWN);
-      pin->setDirection(OUT);
-      pin->setValue(LOW);
+      gameData->LED1 = gpio->getPin(23);
+      gameData->LED1->setDirection(OUT);
+      gameData->LED1->setValue(LOW);
       
-      pin = gpio->getPin(13);
-      pin->setPull(DOWN);
-      pin->setDirection(OUT);
-      pin->setValue(LOW);
+      gameData->LED2 = gpio->getPin(14);
+      gameData->LED2->setDirection(OUT);
+      gameData->LED2->setValue(LOW);
       
-      pin = gpio->getPin(19);
-      pin->setPull(DOWN);
-      pin->setDirection(OUT);
-      pin->setValue(LOW);
+      gameData->LED3 = gpio->getPin(15);
+      gameData->LED3->setDirection(OUT);
+      gameData->LED3->setValue(HIGH);
       
-      pin = gpio->getPin(26);
-      pin->setPull(DOWN);
-      pin->setDirection(OUT);
-      pin->setValue(LOW);
-      */
-      // initialize GPIO 21   ** :P  ** No extra points for making ALL group members to participate :P 
-      pin = gpio->getPin(20);
-      pin->setPull(DOWN);
-      pin->setDirection(IN);
-      
-      std::cout << "current pin 21 value: " << pin->getValue() << "\n";
+      gameData->buzzer = new SoftBuzzer(gpio->getPin(12));
+      gameData->buzzer->setFrequency(440);
+      gameData->buzzer->enable(3000);
       
       std::cout << "End StateInitial\n";
       
@@ -82,67 +56,53 @@ State* StateInitial::process(void* data)
       return this->stateManager->getState("StateBeforeGame");
 }
 
-void StateInitial::setup()
+void StateInitial::setup(void* data)
 {
 }
 
 StateBeforeGame::StateBeforeGame(StateManager* sm, PeripheralFactory* pf) : State(sm, pf)
 {
-      this->LED = ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(2);
-      this->theButton = new Button(((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(20));
       this->pressCount = 0;
-      this->theDisplay = new SingleDigitDisplay(
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(2),
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(3),
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(4),
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(5),
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(6)
-                                                      );
-/*                                                      
-      this->secDisplay = new SingleDigitDisplay(
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(22),
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(13),
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(19),
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(26),
-                                                      ((GPIOSystem*)this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO))->getPin(6)
-                                                      );
-*/                                                      
-//      this->theDisplay->setDisplay(1);
 }
 
-void StateBeforeGame::setup()
+void StateBeforeGame::setup(void* data)
 {
 }
 
 StateBeforeGame::~StateBeforeGame()
 {
-      delete this->theButton;
-      delete this->theDisplay;
-      //delete this->secDisplay;
 }
 
 State* StateBeforeGame::process(void* data)
 {
       State* returnState = this;
       
-      if (this->theButton->pressed())
+      GameData* gameData = (GameData*) data;
+      
+      if (gameData->buttonOne->pressed() ||
+           gameData->buttonTwo->pressed() ||
+           gameData->buttonThree->pressed())
       {
             this->pressCount++;
             
-            /*
             //toggle the LED
-            if (this->LED->getValue() == HIGH)
+            if (gameData->LED1->getValue() == HIGH)
             {
-                  this->LED->setValue(LOW);
+                  gameData->LED1->setValue(LOW);
+                  gameData->LED2->setValue(LOW);
+                  gameData->LED3->setValue(HIGH);
             }
             else
             {
-                  this->LED->setValue(HIGH);
+                  gameData->LED1->setValue(HIGH);
+                  gameData->LED2->setValue(HIGH);
+                  gameData->LED3->setValue(LOW);
             }
-            */
             
-            this->theDisplay->setDisplay(this->pressCount);
-            //this->secDisplay->setDisplay(this->pressCount);
+            gameData->displayOne->setDisplay(this->pressCount);
+            gameData->displayTwo->setDisplay(this->pressCount);
+            gameData->displayThree->setDisplay(this->pressCount);
+            gameData->displayFour->setDisplay(this->pressCount);
             
             std::cout << "\rPressed " << this->pressCount << " times.";
             std::cout.flush();
@@ -159,7 +119,7 @@ State* StateBeforeGame::process(void* data)
       return returnState;
 }
 
-void StateAfterGame::setup()
+void StateAfterGame::setup(void* data)
 {
 }
 
@@ -174,6 +134,17 @@ State* StateAfterGame::process(void* data)
       ts.tv_nsec = 0;
       nanosleep(&ts, &ts);
       
+      GameData* gd = (GameData*) data;
+      delete gd->displayOne;
+      delete gd->displayTwo;
+      delete gd->displayThree;
+      delete gd->displayFour;
+      
+      delete gd->buttonOne;
+      delete gd->buttonTwo;
+      delete gd->buttonThree;
+      
+      delete gd->buzzer;
       std::cout << "End StateAfterGame\n";
       
       return (State*) 0;
