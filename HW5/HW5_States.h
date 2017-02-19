@@ -15,6 +15,9 @@ struct GameData
       SingleDigitDisplay* playerTwoDisplay1;
       SingleDigitDisplay* playerTwoDisplay2;
       
+      GPIOPin* playerOneLED;
+      GPIOPin* playerTwoLED;
+      
       GPIOPin* countUpLED;
       GPIOPin* countDownLED;
       
