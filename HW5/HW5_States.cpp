@@ -28,10 +28,14 @@ void StateInitial::setup(void* data)
                                                           gpio->getPin(13));
       gameData->playerOneDisplay2 = new SingleDigitDisplay(gpio->getPin(17), gpio->getPin(27), gpio->getPin(22), gpio->getPin(6),
                                                           gpio->getPin(19));
-      gameData->playerTwoDisplay1 = nullptr;//new SingleDigitDisplay();
-      gameData->playerTwoDisplay2 = nullptr;//new SingleDigitDisplay();
+      gameData->playerTwoDisplay1 = nullptr;/*new SingleDigitDisplay(gpio->getPin(17), gpio->getPin(27), gpio->getPin(22), gpio->getPin(6),
+                                                          gpio->getPin(19));*/
+      gameData->playerTwoDisplay2 = new SingleDigitDisplay(gpio->getPin(10), gpio->getPin(9), gpio->getPin(11), gpio->getPin(8),
+                                                          gpio->getPin(0));
       
       //Initialize LEDs
+      //gameData->playerOneLED = new GPIOPin(gpio->getPin(x));
+      //gameData->playerTwoLED = new GPIOPin(gpio->getPin(x));
       gameData->countUpLED = new GPIOPin(gpio->getPin(23));
       gameData->countDownLED = new GPIOPin(gpio->getPin(24));
       gameData->ledTree = nullptr;/*{ new GPIOPin(),
