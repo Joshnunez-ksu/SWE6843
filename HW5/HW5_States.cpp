@@ -34,17 +34,12 @@ void StateInitial::setup(void* data)
                                                           gpio->getPin(13));
       
       //Initialize LEDs
-      gameData->playerOneLED = new GPIOPin(gpio->getPin(14));
-      gameData->playerTwoLED = new GPIOPin(gpio->getPin(15));
-      gameData->countUpLED = new GPIOPin(gpio->getPin(23));
-      gameData->countDownLED = new GPIOPin(gpio->getPin(24));
-      gameData->ledTree = nullptr;/*{ new GPIOPin(),
-                            new GPIOPin(),
-                            new GPIOPin(),
-                            new GPIOPin(),
-                            new GPIOPin() };*/
+      gameData->playerOneLED = gpio->getPin(14);
+      gameData->playerTwoLED = gpio->getPin(15);
+      gameData->countUpDownLED = gpio->getPin(23);
+      
       //Initialize buzzer
-      gameData->buzzer = new Buzzer(gpio->getPin(12));
+      gameData->buzzer = new SoftBuzzer(gpio->getPin(12));
 }
 
 State* StateInitial::process(void* data)
@@ -54,9 +49,10 @@ State* StateInitial::process(void* data)
       //set playerOneDisplay to 10 seconds
       gameData->playerOneDisplay1->setDisplay(1);
       gameData->playerOneDisplay2->setDisplay(0);
+      gameData->playerOneDisplay1->setDecimal(HIGH);
       
       //set playerTwoDisplay to 10 seconds
-      gameData->playerTwoDisplay2->setDisplay(1);
+      gameData->playerTwoDisplay1->setDisplay(1);
       gameData->playerTwoDisplay2->setDisplay(0);
       
       State* returnState = this;
@@ -84,10 +80,6 @@ State* StateBeforeGame::process(void* data)
             delete gameData->playerOneDisplay2;
             delete gameData->playerTwoDisplay1;
             delete gameData->playerTwoDisplay2;
-            delete gameData->playerOneLED;
-            delete gameData->playerTwoLED;
-            delete gameData->countUpLED;
-            delete gameData->countDownLED;
             //delete gameData->ledTree;
             delete gameData->buzzer;
       }
@@ -110,7 +102,7 @@ void StatePreInGame::setup(void* data)
       gameData->playerTwoTick = 0;
 
       //Count up is low, Count down is high
-      gameData->countDownLED->setValue(HIGH);
+      gameData->countUpDownLED->setValue(LOW);
 }
 
 State* StatePreInGame::process(void* data)
@@ -118,8 +110,6 @@ State* StatePreInGame::process(void* data)
       GameData* gameData = (GameData*) data;
       State* returnState = this;
       
-      //Countdown buzzer
-      //pitch, duration
       /*
        * LED1.write(HIGH);
        * buzzer.makeSound(250, .50);
@@ -152,13 +142,23 @@ State* StatePreInGame::process(void* data)
        * LED6.write(LOW);
        */
       
-      for(int i; i < 4; i++)
+      gameData->playerOneLED->setDirection(OUT);
+      gameData->playerOneLED->setValue(LOW);
+      gameData->playerTwoLED->setDirection(OUT);
+      gameData->playerTwoLED->setValue(LOW);
+      
+      gameData->countUpDownLED->setDirection(OUT);
+      gameData->countUpDownLED->setValue(LOW);
+      
+      for(int i=0; i < 4; i++)
       {
-            nanowait(500000);
-            //buzz
+            gameData->buzzer->setFrequency(440);
+            gameData->buzzer->enable(500);
+            nanowait(0, 500000000);
       }
       
-      returnState = this->stateManager->getState("StateWaitForOne");
+      gameData->startTick = getTick();
+      returnState = this->stateManager->getState("StateWaitForTwo");
       
       return returnState;
 }
@@ -167,8 +167,6 @@ void StateWaitForOne::setup(void* data)
 {
       std::cout << "StateWaitForOne\n";
       GameData* gameData = (GameData*) data;
-      //gameData->startTick = getTick();
-                                                      
       //gameData->playerOneDisplay1->setDecimal(HIGH);
 }
 
@@ -180,16 +178,15 @@ State* StateWaitForOne::process(void* data)
       int seconds = 0;
       int tenths = 0;
       
-      long trueTickDiff = getTick() - gameData->startTick; //To switch the countUpLED & countDownLED
       long tickDiff = getTick() - gameData->startTick;
-      tickDiff = abs(10000 - tickDiff);
+      int displayValue = abs(10000 - tickDiff);
       
-      seconds = tickDiff / 1000;
-      tenths = ((tickDiff / 100) - seconds * 10);
+      seconds = displayValue / 1000;
+      tenths = ((displayValue / 100) - seconds * 10);
       
-      if(trueTickDiff <= 0 && gameData->countDownLED->getValue() != LOW)
+      if(10000 < tickDiff)
       {
-            gameData->countDownLED->setValue(LOW);
+            gameData->countUpDownLED->setValue(HIGH);
       }
       
       if(gameData->playerOneTick == 0)
@@ -198,7 +195,7 @@ State* StateWaitForOne::process(void* data)
             gameData->playerOneDisplay2->setDisplay(tenths);
             if(gameData->playerOneButton->pressed())
             {
-                  gameData->endTick = getTick();
+                  gameData->playerOneTick = getTick();
                   returnState = this->stateManager->getState("StatePostGame");
             }
       }
@@ -208,12 +205,12 @@ State* StateWaitForOne::process(void* data)
             gameData->playerTwoDisplay2->setDisplay(tenths);
             if(gameData->playerTwoButton->pressed())
             {
-                  gameData->endTick = getTick();
+                  gameData->playerTwoTick = getTick();
                   returnState = this->stateManager->getState("StatePostGame");
             }
       }
       
-      if (tickDiff >= 10000)
+      if (tickDiff >= 20000)
       {
             returnState = this->stateManager->getState("StatePostGame");
       }
@@ -224,11 +221,6 @@ State* StateWaitForOne::process(void* data)
 void StateWaitForTwo::setup(void* data)
 {
       std::cout << "StateWaitForTwo\n";
-      GameData* gameData = (GameData*) data;
-      gameData->startTick = getTick();
-                                                      
-      gameData->playerOneDisplay1->setDecimal(HIGH);
-      gameData->countDownLED-setValue(HIGH);
 }
 
 State* StateWaitForTwo::process(void* data)
@@ -241,11 +233,10 @@ State* StateWaitForTwo::process(void* data)
       
       //display the current countdown
       long tickDiff = getTick() - gameData->startTick;
-      long trueTickDiff = getTick() - gameData->startTick; //To switch the countUpLED & countDownLED
-      tickDiff = abs(10000 - tickDiff);
+      int displayValue = abs(10000 - tickDiff);
       
-      seconds = tickDiff / 1000;
-      tenths = ((tickDiff / 100) - seconds * 10);
+      seconds = displayValue / 1000;
+      tenths = ((displayValue / 100) - seconds * 10);
       
       gameData->playerOneDisplay1->setDisplay(seconds);
       gameData->playerOneDisplay2->setDisplay(tenths);
@@ -253,9 +244,9 @@ State* StateWaitForTwo::process(void* data)
       gameData->playerTwoDisplay1->setDisplay(seconds);
       gameData->playerTwoDisplay2->setDisplay(tenths);
       
-      if(trueTickDiff <= 0 && gameData->countDownLED->getValue() != LOW)
+      if(10000 < tickDiff && gameData->countUpDownLED->getValue() != HIGH)
       {
-            gameData->countDownLED->setValue(LOW);
+            gameData->countUpDownLED->setValue(HIGH);
       }
       
       //check if button pressed
@@ -264,13 +255,14 @@ State* StateWaitForTwo::process(void* data)
             gameData->playerOneTick = getTick();
             returnState = this->stateManager->getState("StateWaitForOne");
       }
-      else if(gameData->playerTwoButton->pressed())
+      
+      if(gameData->playerTwoButton->pressed())
       {
             gameData->playerTwoTick = getTick();
             returnState = this->stateManager->getState("StateWaitForOne");
       }
       
-      if (tickDiff >= 10000)
+      if (tickDiff >= 20000)
       {
             returnState = this->stateManager->getState("StatePostGame");
       }
@@ -287,6 +279,26 @@ State* StatePostGame::process(void* data)
 {
       GameData* gameData = (GameData*) data;
       State* returnState = this;
+      
+      //indicate winner
+      long playerOneTime = abs(gameData->playerOneTick - gameData->startTick);
+      long playerTwoTime = abs(gameData->playerTwoTick - gameData->startTick);
+      
+      if (playerOneTime < playerTwoTime)
+      {
+            gameData->playerOneLED->setValue(HIGH);
+      }
+      else if (playerTwoTime > playerOneTime)
+      {
+            gameData->playerTwoLED->setValue(HIGH);
+      }
+      else
+      {
+            gameData->playerOneLED->setValue(HIGH);
+            gameData->playerTwoLED->setValue(HIGH);
+      }
+      
       if(gameData->startButton->pressed()) returnState = this->stateManager->getState("StateBeforeGame");
+      
       return returnState;
 }

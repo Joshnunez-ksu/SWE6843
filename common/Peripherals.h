@@ -17,7 +17,7 @@
 
 #define BLOCK_SIZE      (4*1024)
 
-void nanowait(long nanoseconds);
+void nanowait(long seconds, long nanoseconds);
 
 class Peripheral
 {
@@ -126,6 +126,7 @@ private:
       volatile unsigned int* GPPUDCLK;
       
       std::string strBasePath;
+      std::string strPortPath;
 };
 
 class PWMPin
@@ -151,6 +152,7 @@ public:
       
 private:
       GPIOPin* pin;
+      char buffer;
 };
 
 class SingleDigitDisplay

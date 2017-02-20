@@ -228,10 +228,11 @@ const char* GPIO_FILE_PATH = "/sys/class/gpio";
 
 // sysfs version of GPIO
 GPIOPin::GPIOPin(GPIOSystem* s, int pinNumber)
-{     
+{
       this->strBasePath = GPIO_FILE_PATH;
       this->pinNumber = pinNumber;
       sprintf(&this->strPinNumber[0], "%d", this->pinNumber);
+      this->strPortPath = this->strBasePath + "/gpio" + this->strPinNumber;
       
 	// export the GPIO pins
 	ofstream exportFile(this->getGPIOPath("/export").c_str());
@@ -250,7 +251,7 @@ GPIOPin::GPIOPin(GPIOSystem* s, int pinNumber)
 GPIOPin::~GPIOPin()
 {
       // set the port to input to guard against shorts
-      ofstream pin(this->getPortPath("/direction").c_str());
+      ofstream pin((this->strPortPath + "/direction").c_str());
       pin << "in";
       pin.close();
       
@@ -371,45 +372,23 @@ Button::Button(GPIOPin* pin)
 {
       this->pin = pin;
       this->pin->setDirection(IN);
+      this->buffer = 0xe0;
 }
 
 bool Button::pressed()
-{     
-      // software de-bouncing
-      int readCounter = 0;
-      int buffer[3] = {-1,-2,-3};
-      bool pressed = false;
-      bool released = false;
- 
-      //fill the buffer
-      while (!(buffer[0] == buffer[1] && buffer[1] == buffer[2]))
+{
+      this->buffer = (this->buffer << 1) | (char)this->pin->getValue() | 0xe0;
+      if (this->buffer == 0xf0)
       {
-            buffer[readCounter++%3] = this->pin->getValue();
-             nanowait(0, 500000);
+            this->buffer = 0xe0;
+            return true;
+      }
+      else
+      {
+            nanowait(0, 1000000);
       }
       
-//      pressed = !buffer[0];
-      pressed = buffer[0];
-      
-      if (pressed)
-      {
-            //wait for the button to stop being pressed
-            while (!released)
-            {
-                  buffer[0] = -1;
-                  
-                  while (!(buffer[0] == buffer[1] && buffer[1] == buffer[2]) )
-                  {
-                        buffer[readCounter++%3] = this->pin->getValue();
-                        nanowait(0, 500000);
-                  }
-                  
-                  //released = buffer[2];
-                  released = !buffer[2];
-            }
-      }
-      
-      return pressed;     
+      return false;
 }
 
 SingleDigitDisplay::SingleDigitDisplay(GPIOPin* pin0, GPIOPin* pin1, GPIOPin* pin2, GPIOPin* pin3, GPIOPin* dp)

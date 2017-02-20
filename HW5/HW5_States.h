@@ -18,12 +18,11 @@ struct GameData
       GPIOPin* playerOneLED;
       GPIOPin* playerTwoLED;
       
-      GPIOPin* countUpLED;
-      GPIOPin* countDownLED;
+      GPIOPin* countUpDownLED;
       
-      GPIOPin*[6] ledTree; //make class for ledTree
+      GPIOPin* ledTree[6]; //make class for ledTree
       
-      Buzzer* buzzer;
+      SoftBuzzer* buzzer;
 };
 
 class StateInitial : public State
