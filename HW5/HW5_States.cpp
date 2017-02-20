@@ -215,6 +215,39 @@ State* StateWaitForOne::process(void* data)
             returnState = this->stateManager->getState("StatePostGame");
       }
       
+      if (returnState != this)
+      {
+            //indicate winner
+            long playerOneTime = abs(10000 - (gameData->playerOneTick - gameData->startTick));
+            long playerTwoTime = abs(10000 - (gameData->playerTwoTick - gameData->startTick));
+            
+            std::cout << playerOneTime << " : " << playerTwoTime << "\n";
+            
+            gameData->playerOneLED->setValue((VOLTAGE)(playerOneTime <= playerTwoTime));
+            gameData->playerTwoLED->setValue((VOLTAGE)(playerTwoTime <= playerOneTime));
+            
+            if (abs(playerOneTime - playerTwoTime) < 1000)
+            {
+                  // move decimal point over
+                  int playerOneSecs = playerOneTime / 1000;
+                  int playerOneTenths = (playerOneTime / 100) - (playerOneSecs * 10);
+                  int playerOneHunds = (playerOneTime / 10) - (playerOneTenths * 10) - (playerOneSecs * 100);
+                  
+                  int playerTwoSecs = playerTwoTime / 1000;
+                  int playerTwoTenths = (playerTwoTime / 100) - (playerTwoSecs * 10);
+                  int playerTwoHunds = (playerTwoTime / 10) - (playerTwoTenths * 10) - (playerTwoSecs * 100);
+                  
+                  std::cout << playerOneTenths << playerOneHunds << " : " << playerTwoTenths << playerTwoHunds << "\n";
+                  
+                  gameData->playerOneDisplay1->setDisplay(playerOneTenths);
+                  gameData->playerOneDisplay2->setDisplay(playerOneHunds);
+                  gameData->playerTwoDisplay1->setDisplay(playerTwoTenths);
+                  gameData->playerTwoDisplay2->setDisplay(playerTwoHunds);
+                  
+                  gameData->playerOneDisplay1->setDecimal(LOW);
+            }
+      }
+      
       return returnState;
 }
 
@@ -279,24 +312,6 @@ State* StatePostGame::process(void* data)
 {
       GameData* gameData = (GameData*) data;
       State* returnState = this;
-      
-      //indicate winner
-      long playerOneTime = abs(gameData->playerOneTick - gameData->startTick);
-      long playerTwoTime = abs(gameData->playerTwoTick - gameData->startTick);
-      
-      if (playerOneTime < playerTwoTime)
-      {
-            gameData->playerOneLED->setValue(HIGH);
-      }
-      else if (playerTwoTime > playerOneTime)
-      {
-            gameData->playerTwoLED->setValue(HIGH);
-      }
-      else
-      {
-            gameData->playerOneLED->setValue(HIGH);
-            gameData->playerTwoLED->setValue(HIGH);
-      }
       
       if(gameData->startButton->pressed()) returnState = this->stateManager->getState("StateBeforeGame");
       
