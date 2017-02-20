@@ -21,6 +21,8 @@ int main(int argc, char* args[])
             }
       }
 
+      GameData theData;
+      
       PeripheralFactory pf;
       StateManager stateManager;
       
@@ -33,16 +35,18 @@ int main(int argc, char* args[])
       {
             //single player mode
             stateManager.registerState("StateWaitForTwo", stateManager.getState("StateWaitForOne"));
+            theData.playerOneTick = 0;
+            theData.playerTwoTick = -1;
       }
       else
       {
             //two player mode
             stateManager.registerState("StateWaitForTwo", new StateWaitForTwo(&stateManager, &pf));
+            theData.playerOneTick = 0;
+            theData.playerTwoTick = 0;
       }
       
       stateManager.registerState("StatePostGame", new StatePostGame(&stateManager, &pf));
-            
-      GameData theData;
 
       Driver driver(&stateManager);
       driver.run(&theData);
