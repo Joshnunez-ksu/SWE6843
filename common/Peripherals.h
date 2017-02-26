@@ -194,4 +194,21 @@ private:
       
 };
 
+class KeyPad
+{
+public:
+	KeyPad(GPIOPin* pin0, GPIOPin* pin1, GPIOPin* pin2, GPIOPin* pin3, GPIOPin* pin4, GPIOPin* pin5, GPIOPin* pin6, GPIOPin* pin7);
+	~KeyPad();
+
+	int getKey();
+
+private:
+	GPIOPin*	pins[8];
+	
+	char		buffer[4];
+	int			padGrid[4][4];
+
+};
+
+
 #endif
