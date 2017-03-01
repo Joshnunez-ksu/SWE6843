@@ -11,59 +11,69 @@ struct RecipeData
 class Initial : public State
 {
 	public:
-		Initial(RecipeData* data);
+		Initial(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 };
 
 class Welcome : public State
 {
 	public:
-		Welcome(RecipeData* data);
+		Welcome(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 };
 
 class RecipeList : public State
 {
 	public:
-		RecipeList(RecipeData* data);
+		RecipeList(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 };
 
 class DisplayIngredients : public State
 {
 	public:
-		DisplayIngredients(RecipeData* data);
+		DisplayIngredients(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 };
 
 class ZeroScale : public State
 {
 	public:
-		ZeroScale(RecipeData* data);
+		ZeroScale(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 };
 
 class Fill : public State
 {
 	public:
-		Fill(RecipeData* data);
+		Fill(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 };
 
 class Validate : public State
 {
 	public:
-		Validate(RecipeData* data);
+		Validate(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 };
 
 class ErrorFill : public State
 {
 	public:
-		ErrorFile(RecipeData* data);
+		ErrorFill(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 };
 
 class AdditionalStep : public State
 {
 	public:
-		AdditionalStep(RecipeData* data);
+		AdditionalStep(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 };
 
 class Done : public State
 {
 	public:
-		Done(RecipeData* data);
+		Done(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
+		State* process(void* data);
 }
