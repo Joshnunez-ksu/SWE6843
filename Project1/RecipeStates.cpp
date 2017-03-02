@@ -48,10 +48,18 @@ State* Welcome::process(void* data)
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
 
-	/*if(data->keypad->getKey("start")->pressed())
+	//Get keypad input
+	int userInput = data->keypad->getKey();
+
+	switch(userInput)
 	{
-		returnState = this->stateManager->getState("RecipeList");
-	}*/
+		case 1:
+			returnState = this->stateManager->getState("RecipeList");
+			break;
+		default:
+			//do nothing. wait for correct input.
+			break;
+	}
 
 	return returnState;
 }
@@ -65,40 +73,51 @@ State* RecipeList::process(void* data)
 	//data->display->setValue(recipes);
 
 	//Get keypad input
-	char userInput = recipeData->keypad->getKey();
+	int userInput = recipeData->keypad->getKey();
 
 	switch(userInput)
 	{
-		case '0':
+		case 0:
 			break;
-		case '1':
-			//returnState = this->stateManger->getState("DisplayIngredients" + recipe[1].getState());
+		case 1:
+			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[1].getState());
 			break;
-		case '2':
+		case 2:
+			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[2].getState());
 			break;
-		case '3':
+		case 3:
+			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[3].getState());
 			break;
-		case '4':
+		case 4:
+			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[4].getState());
 			break;
-		case '5':
+		case 5:
 			break;
-		case '6':
+		case 6:
 			break;
-		case '7':
+		case 7:
 			break;
-		case '8':
+		case 8:
 			break;
-		case '9':
+		case 9:
 			break;
-		case 'a':
+		case 10:
 			//Scroll up if not at the top
+			//clear the display
+			//data->display->clear();
+			//show the recipes
+			//data->display->print("recipes");
 			break;
-		case 'b':
+		case 11:
 			break;
-		case 'c':
+		case 12:
 			break;
-		case 'd':
+		case 13:
 			//Scroll down if not at the bottom
+			//clear the display
+			//data->display->clear();
+			//show the recipes
+			//data->display->print("recipes");
 			break;
 	}
 
