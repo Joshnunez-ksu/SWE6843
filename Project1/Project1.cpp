@@ -1,5 +1,9 @@
 /********************************************************************************
 Project One
+
+To compile:
+	g++ -o p1 Project1.cpp "RecipeStates.cpp" "Recipes.cpp" ../common/*.cpp
+
 ********************************************************************************/
 
 #include "../common/Driver.h"
@@ -12,16 +16,16 @@ int main(int argc, char* args[])
       PeripheralFactory	pf;
       StateManager		sm;
       
-      sm.registerState("StateInitial",		new Initial(&sm, &pf));
-      sm.registerState("Welcome",			new Welcome(&sm, &pf));
-      sm.registerState("RecipeList",		new RecipeList(&sm, &pf));
-      sm.registerState("DisplayIngredients",new DisplayIngredients(&sm, &pf));
-      sm.registerState("ZeroScale",			new ZeroScale(&sm, &pf));
-      sm.registerState("Fill",				new Fill(&sm, &pf));
-      sm.registerState("Validate",			new Validate(&sm, &pf));
-      sm.registerState("ErrorFill",			new ErrorFill(&sm, &pf));
-      sm.registerState("AdditionalStep",	new AdditionalStep(&sm, &pf));
-      sm.registerState("Done",				new Done(&sm, &pf));
+      sm.registerState(INITIAL,				new Initial(&sm, &pf));
+      sm.registerState(WELCOME,				new Welcome(&sm, &pf));
+      sm.registerState(RECIPELIST,			new RecipeList(&sm, &pf));
+      sm.registerState(DISPLAYINGREDIENTS,	new DisplayIngredients(&sm, &pf));
+      sm.registerState(ZEROSCALE,			new ZeroScale(&sm, &pf));
+      sm.registerState(FILL,				new Fill(&sm, &pf));
+      sm.registerState(VALIDATE,			new Validate(&sm, &pf));
+      sm.registerState(ERRORFILL,			new ErrorFill(&sm, &pf));
+      sm.registerState(ADDITIONALSTEP,		new AdditionalStep(&sm, &pf));
+      sm.registerState(DONE,				new Done(&sm, &pf));
 
       Driver driver(&sm);
       driver.run(&theData);

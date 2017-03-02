@@ -1,6 +1,18 @@
 #include "../common/State.h"
 #include "Recipes.h"
 
+#define		INITIAL				"StateInitial"
+#define		WELCOME				"Welcome"
+#define		RECIPELIST			"RecipeList"
+#define		DISPLAYINGREDIENTS	"DisplayIngredients"
+#define		ZEROSCALE			"ZeroScale"
+#define		FILL				"Fill"
+#define		VALIDATE			"Validate"
+#define		ERRORFILL			"ErrorFill"
+#define		ADDITIONALSTEP		"AdditionalStep"
+#define		DONE				"Done"
+      
+      
 class Display;
 
 struct RecipeData
@@ -81,7 +93,10 @@ class AdditionalStep : public State
 	public:
 		AdditionalStep(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
 		State* process(void* data);
-		void setup(void* data){};
+		void setup(void* data){stepNumber = 0;};
+		
+	private:
+		int stepNumber;
 };
 
 class Done : public State
@@ -89,5 +104,8 @@ class Done : public State
 	public:
 		Done(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
 		State* process(void* data);
-		void setup(void* data){};
+		void setup(void* data);
+	
+	private:
+		long startTick;
 };
