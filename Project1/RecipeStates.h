@@ -17,11 +17,12 @@ class Display;
 
 struct RecipeData
 {
-	Display* display;
-	KeyPad* keypad;
-	Scale* scale;
-	Recipes* recipes;
-	Recipe* currentRecipe;
+	Display*	display;
+	KeyPad*		keypad;
+	Scale*		scale;
+	Recipes*	recipes;
+	Recipe*		currentRecipe;
+	Measured*	currentMeasured;
 };
 
 class Initial : public State

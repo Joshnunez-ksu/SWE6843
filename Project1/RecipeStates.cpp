@@ -3,6 +3,9 @@
 #include <time.h>
 #include <stdlib.h>
 
+#define		WELCOME_MESSAGE	"               WELCOME!\n   Start to choose a recipe\n               A - Start\n";
+#define		DONE_MESSAGE	"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
+
 //Added this function from HW5. Wasn't sure if we needed it.
 //returns the current number of milliseconds
 long getTick()
@@ -15,7 +18,7 @@ long getTick()
 
 State* Initial::process(void* data)
 {
-	State* returnState = this;
+	State* returnState = this->stateManager->getState(WELCOME);
 	GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
 	RecipeData* recipeData = (RecipeData*) data;
 
@@ -27,19 +30,11 @@ State* Initial::process(void* data)
 	
 	recipeData->recipes = new Recipes();
 	
-	std::cout << "Recipes:\n";
+	// display the welcome message
+	// display->print(WELCOME_MESSAGE);
+	std::cout << WELCOME_MESSAGE;
 	
-	int i=0;
-	
-	while (recipeData->currentRecipe = recipeData->recipes->getRecipe(i))
-	{
-		std::cout << "\t" << i << ") " << recipeData->currentRecipe->getName() << "\n";
-		
-		i++;
-	}
-
-	return (State*) 0;
-	//return returnState;
+	return returnState;
 }
 
 State* Welcome::process(void* data)
@@ -180,7 +175,8 @@ State* AdditionalStep::process(void* data)
 		{
 			// move to done state
 			// display done message here
-			// display->print(done message);
+			// display->print(DONE_MESSAGE);
+			std::cout << DONE_MESSAGE;
 			returnState = this->stateManager->getState(DONE);
 		}
 	}
@@ -198,6 +194,7 @@ State* Done::process(void* data)
 		(getTick() - startTick) > 60000)
 	{
 		// display welcome message code goes here
+		std::cout << WELCOME_MESSAGE;
 		returnState = this->stateManager->getState(WELCOME);
 	}
 	
