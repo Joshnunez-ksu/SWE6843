@@ -29,7 +29,6 @@ private:
     std::vector<char*>       mStepList;
     char*                    mName;
     
-
 };
 
 class Recipes

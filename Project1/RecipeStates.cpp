@@ -7,7 +7,8 @@
 #define		WELCOME_MESSAGE	"               WELCOME!\n   Start to choose a recipe\n               A - Start\n"
 #define		DONE_MESSAGE	"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
 #define		MEASURE_EMPTY_MESSAGE	"Place empty %s container on scale.\n"
-#define		MEASURE_FILL_MESSAGE	"Fill container with %s grams of %s.\n\n    0    grams\n"
+#define		MEASURE_FILL_MESSAGE	"Fill container with %s grams of %s.\n\n    %i    grams\n"
+#define		RECIPELIST_MESSAGE		"1. %s   %s\n2. %s\n3. %s\n4. %s   %s\n"
 
 //returns the current number of milliseconds
 long getTick()
@@ -184,6 +185,27 @@ State* Fill::process(void* data)
 {
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
+	
+	float currentGrams = recipeData->scale->getGrams();
+	
+	if (currentGrams != -1)
+	{
+		// update the display
+		char msg[160];
+		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient, (int) currentGrams);
+		std::cout << msg;
+		
+		// check to see if this is over the measured limit
+		if (currentGrams >= recipeData->currentMeasured->grams)
+		{
+			// check one more times...
+			float checkGrams = recipeData->scale->getGrams();
+			if (checkGrams >= recipeData->currentMeasured->grams)
+			{
+				// ok they have it ... get the next measured
+			} 
+		}
+	}
 
 	return returnState;
 }
@@ -235,7 +257,7 @@ State* Done::process(void* data)
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
 
-	// if the A button pressed to 60 second time out go back to WELCOME
+	// if the A button pressed or 60 second time out go back to WELCOME
 	if (recipeData->keypad->getKey() == 10 ||
 		(getTick() - startTick) > 60000)
 	{

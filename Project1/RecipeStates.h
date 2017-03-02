@@ -23,6 +23,7 @@ struct RecipeData
 	Recipes*	recipes;
 	Recipe*		currentRecipe;
 	Measured*	currentMeasured;
+	int			measuredIndex;
 };
 
 class Initial : public State
