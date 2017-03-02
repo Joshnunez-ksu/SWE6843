@@ -67,6 +67,12 @@ State* Welcome::process(void* data)
 	return returnState;
 }
 
+void RecipeList::setup(void* data)
+{
+	RecipeData* recipeData = (RecipeData*) data;
+	pageNumber = 0;
+}
+
 State* RecipeList::process(void* data)
 {
 	State* returnState = this;
@@ -83,46 +89,39 @@ State* RecipeList::process(void* data)
 		case 0:
 			break;
 		case 1:
+			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+0);
 			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[1].getState());
 			break;
 		case 2:
+			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+1);
 			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[2].getState());
 			break;
 		case 3:
+			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+2);
 			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[3].getState());
 			break;
 		case 4:
+			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+3);
 			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[4].getState());
-			break;
-		case 5:
-			break;
-		case 6:
-			break;
-		case 7:
-			break;
-		case 8:
-			break;
-		case 9:
 			break;
 		case 10:
 			//Scroll up if not at the top
-			//clear the display
-			//data->display->clear();
-			//show the recipes
-			//data->display->print("recipes");
-			break;
-		case 11:
-			break;
-		case 12:
+			if(pageNumber == 0);
+			else
+			{
+				pageNumber++;
+			}
 			break;
 		case 13:
 			//Scroll down if not at the bottom
-			//clear the display
-			//data->display->clear();
-			//show the recipes
-			//data->display->print("recipes");
+			if(pageNumber == 2);
+			else
+			{
+				pageNumber--;
+			}
 			break;
 		default:
+			//do nothing
 			break;
 	}
 
