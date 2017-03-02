@@ -3,7 +3,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-
 //Added this function from HW5. Wasn't sure if we needed it.
 //returns the current number of milliseconds
 long getTick()
@@ -49,12 +48,12 @@ State* Welcome::process(void* data)
 	RecipeData* recipeData = (RecipeData*) data;
 
 	//Get keypad input
-	int userInput = data->keypad->getKey();
+	int userInput = recipeData->keypad->getKey();
 
 	switch(userInput)
 	{
 		case 1:
-			returnState = this->stateManager->getState("RecipeList");
+			returnState = this->stateManager->getState(RECIPELIST);
 			break;
 		default:
 			//do nothing. wait for correct input.
@@ -169,6 +168,23 @@ State* AdditionalStep::process(void* data)
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
 
+	if (recipeData->keypad->getKey() == 10)
+	{
+		char* step = recipeData->currentRecipe->getStep(this->stepNumber++);
+		if (step)
+		{
+			// display the current step text
+			// display->print(step);
+		}
+		else
+		{
+			// move to done state
+			// display done message here
+			// display->print(done message);
+			returnState = this->stateManager->getState(DONE);
+		}
+	}
+	
 	return returnState;
 }
 
@@ -177,5 +193,18 @@ State* Done::process(void* data)
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
 
+	// if the A button pressed to 60 second time out go back to WELCOME
+	if (recipeData->keypad->getKey() == 10 ||
+		(getTick() - startTick) > 60000)
+	{
+		// display welcome message code goes here
+		returnState = this->stateManager->getState(WELCOME);
+	}
+	
 	return returnState;
+}
+
+void Done::setup(void* data)
+{
+	startTick = getTick();
 }
