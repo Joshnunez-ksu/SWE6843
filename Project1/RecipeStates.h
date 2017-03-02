@@ -9,7 +9,7 @@ struct RecipeData
 	KeyPad* keypad;
 	Scale* scale;
 	Recipes* recipes;
-	Recipe* currentRecipe;
+	int currentRecipe;
 };
 
 class Initial : public State

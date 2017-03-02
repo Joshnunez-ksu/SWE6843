@@ -1,10 +1,9 @@
 #include "RecipeStates.h"
+#include "Recipies"
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
 
-
-//Added this function from HW5. Wasn't sure if we needed it.
 //returns the current number of milliseconds
 long getTick()
 {
@@ -20,12 +19,17 @@ State* Initial::process(void* data)
 	GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
 	RecipeData* recipeData = (RecipeData*) data;
 
-	//Initialize peripherals
+	//Initialize data
 	//data->display = new Display(gpio->getPin(2));
-	//data->keypad = new Keypad(gpio->getPin(2));
-	//data->scale = new Scale(gpio->getPin(2));
-	//data->currentRecipe = ??;
-	
+	data->keypad = new Keypad(gpio->getPin(3),
+				  gpio->getPin(4),
+				  gpio->getPin(17),
+				  gpio->getPin(27),
+				  gpio->getPin(22),
+				  gpio->getPin(10),
+				  gpio->getPin(9));
+	//data->scale = new Scale(gpio->getPin(11));
+	data->currentRecipe = 0;
 	recipeData->recipes = new Recipes();
 	
 	std::cout << "Recipes:\n";
@@ -118,6 +122,8 @@ State* RecipeList::process(void* data)
 			//data->display->clear();
 			//show the recipes
 			//data->display->print("recipes");
+			break;
+		default:
 			break;
 	}
 
