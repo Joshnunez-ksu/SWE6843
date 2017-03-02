@@ -39,6 +39,8 @@ class Welcome : public State
 		Welcome(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
 		State* process(void* data);
 		void setup(void* data){};
+	private:
+		int pageNumber;
 };
 
 class RecipeList : public State
