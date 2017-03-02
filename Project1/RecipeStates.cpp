@@ -1,12 +1,19 @@
 #include "RecipeStates.h"
+#include "Recipies"
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
 
+<<<<<<< HEAD
 #define		WELCOME_MESSAGE	"               WELCOME!\n   Start to choose a recipe\n               A - Start\n";
 #define		DONE_MESSAGE	"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
 
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 84176f642b238a1668514b8493f16c6cedec8ea1
 //Added this function from HW5. Wasn't sure if we needed it.
+>>>>>>> 51d88bc9242667d46c997e2e28e43bdf94898023
 //returns the current number of milliseconds
 long getTick()
 {
@@ -22,12 +29,17 @@ State* Initial::process(void* data)
 	GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
 	RecipeData* recipeData = (RecipeData*) data;
 
-	//Initialize peripherals
+	//Initialize data
 	//data->display = new Display(gpio->getPin(2));
-	//data->keypad = new Keypad(gpio->getPin(2));
-	//data->scale = new Scale(gpio->getPin(2));
-	//data->currentRecipe = ??;
-	
+	data->keypad = new Keypad(gpio->getPin(3),
+				  gpio->getPin(4),
+				  gpio->getPin(17),
+				  gpio->getPin(27),
+				  gpio->getPin(22),
+				  gpio->getPin(10),
+				  gpio->getPin(9));
+	//data->scale = new Scale(gpio->getPin(11));
+	data->currentRecipe = 0;
 	recipeData->recipes = new Recipes();
 	
 	// display the welcome message
@@ -112,6 +124,8 @@ State* RecipeList::process(void* data)
 			//data->display->clear();
 			//show the recipes
 			//data->display->print("recipes");
+			break;
+		default:
 			break;
 	}
 
