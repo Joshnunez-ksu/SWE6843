@@ -57,7 +57,7 @@ State* Welcome::process(void* data)
 
 	switch(userInput)
 	{
-		case 1:
+		case 10:
 			returnState = this->stateManager->getState(RECIPELIST);
 			break;
 		default:
