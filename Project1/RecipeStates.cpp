@@ -36,7 +36,7 @@ State* Initial::process(void* data)
 									gpio->getPin(16),
 									gpio->getPin(17));
 
-	recipeData->scale = new Scale(gpio->getPin(18), gpio->getPin(19));
+	recipeData->scale = new Scale(gpio->getPin(2), gpio->getPin(3));
 	recipeData->currentRecipe = (Recipe*) 0;
 	recipeData->recipes = new Recipes();
 	
