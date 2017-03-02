@@ -70,7 +70,6 @@ State* Welcome::process(void* data)
 
 void RecipeList::setup(void* data)
 {
-	RecipeData* recipeData = (RecipeData*) data;
 	pageNumber = 0;
 }
 
@@ -91,7 +90,7 @@ State* RecipeList::process(void* data)
 		case 2:
 		case 3:
 		case 4:
-			recipeData->currentRecipe = recipeData->recipes->getRecipe((pageNumber*4)+(userInput-1));
+			recipeData->currentRecipe = recipeData->recipes->getRecipe((pageNumber*2)+(userInput-1));
 			returnState = this->stateManager->getState(DISPLAYINGREDIENTS);
 			recipeData->measuredIndex = 0;
 			break;
