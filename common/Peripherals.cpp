@@ -567,3 +567,94 @@ int KeyPad::getKey()
 
 	return returnKey;
 }
+
+Scale::Scale(GPIOPin* dataPin, GPIOPin* clockPin)
+{    
+    this->dataPin = dataPin;
+    this->clockPin = clockPin;
+    
+    this->dataPin->setDirection(IN);
+    
+    // reset the scale
+    this->clockPin->setDirection(OUT);
+    this->reset();
+    
+    // now waiting for the data pin to go LOW to indicate that the device is ready
+    this->clockPin->setValue(LOW);
+    
+    this->offset = 0;
+    this->factor = 130.0 / 51000.0;
+}
+
+Scale::~Scale()
+{
+    this->reset();
+}
+
+int Scale::getReading()
+{
+    int reading = -1;
+    
+    if (this->isReady())
+    {
+        reading = 0;
+        
+        for(int i = 23; i >= 0; i--)
+        {
+            this->clockPin->setValue(HIGH);
+            this->clockPin->setValue(LOW);
+            nanowait(0, 2000);
+            
+            if (this->dataPin->getValue())
+            {
+                reading |= (1 << i);
+            }
+        }
+        
+        // final clock to indicate channel A, gain 128
+        this->clockPin->setValue(HIGH);
+        this->clockPin->setValue(LOW);
+        nanowait(0, 2000);
+        
+        
+        if (reading >= 0x7FFFFF && reading <= 0xFFFFFF)
+        {
+            reading = -1;
+        }
+    }
+    
+    return reading;
+}
+
+float Scale::getGrams()
+{
+    float returnGrams = -1;
+    int reading = this->getReading();
+    
+    if (reading != -1)
+    {
+        returnGrams = (reading - this->offset) * this->factor;
+    }
+    
+    return (float)((int)returnGrams);
+}
+
+bool Scale::isReady()
+{
+    bool returnReady = false;
+    
+    if (!this->dataPin->getValue())
+    {
+        returnReady = true;
+    }
+    
+    return returnReady;
+}
+
+void Scale::reset()
+{
+    this->clockPin->setValue(LOW);
+    nanowait(0, 60000);
+    this->clockPin->setValue(HIGH);
+    nanowait(0, 100000);
+}

@@ -210,5 +210,25 @@ private:
 
 };
 
+class Scale
+{
+public:
+    Scale(GPIOPin* dataPin, GPIOPin* clockPin);
+    ~Scale();
+    
+    int     getReading();
+    float   getGrams();
+    
+    void    setOffset(int offset) {this->offset = offset;};
+    
+private:
+    GPIOPin*    dataPin;
+    GPIOPin*    clockPin;
+    int         offset;
+    float       factor;
+        
+    bool isReady();
+    void reset();
+};
 
 #endif

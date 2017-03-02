@@ -18,21 +18,35 @@ State* Initial::process(void* data)
 {
 	State* returnState = this;
 	GPIOSystem* gpio = (GPIOSystem*) this->peripheralFactory->getPeripheral(PERIPHERAL_GPIO);
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	//Initialize peripherals
 	//data->display = new Display(gpio->getPin(2));
 	//data->keypad = new Keypad(gpio->getPin(2));
 	//data->scale = new Scale(gpio->getPin(2));
 	//data->currentRecipe = ??;
+	
+	recipeData->recipes = new Recipes();
+	
+	std::cout << "Recipes:\n";
+	
+	int i=0;
+	
+	while (recipeData->currentRecipe = recipeData->recipes->getRecipe(i))
+	{
+		std::cout << "\t" << i << ") " << recipeData->currentRecipe->getName() << "\n";
+		
+		i++;
+	}
 
-	return returnState;
+	return (State*) 0;
+	//return returnState;
 }
 
 State* Welcome::process(void* data)
 {
 	State* returnState = this;
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	/*if(data->keypad->getKey("start")->pressed())
 	{
@@ -45,13 +59,13 @@ State* Welcome::process(void* data)
 State* RecipeList::process(void* data)
 {
 	State* returnState = this;
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	//Show recipes
 	//data->display->setValue(recipes);
 
 	//Get keypad input
-	char userInput = data->keypad->getKey();
+	char userInput = recipeData->keypad->getKey();
 
 	switch(userInput)
 	{
@@ -94,7 +108,7 @@ State* RecipeList::process(void* data)
 State* DisplayIngredients::process(void* data)
 {
 	State* returnState = this;
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	return returnState;
 }
@@ -102,7 +116,7 @@ State* DisplayIngredients::process(void* data)
 State* ZeroScale::process(void* data)
 {
 	State* returnState = this;
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	return returnState;
 }
@@ -110,7 +124,7 @@ State* ZeroScale::process(void* data)
 State* Fill::process(void* data)
 {
 	State* returnState = this;
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	return returnState;
 }
@@ -118,7 +132,7 @@ State* Fill::process(void* data)
 State* Validate::process(void* data)
 {
 	State* returnState = this;
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	return returnState;
 }
@@ -126,7 +140,7 @@ State* Validate::process(void* data)
 State* ErrorFill::process(void* data)
 {
 	State* returnState = this;
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	return returnState;
 }
@@ -134,7 +148,7 @@ State* ErrorFill::process(void* data)
 State* AdditionalStep::process(void* data)
 {
 	State* returnState = this;
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	return returnState;
 }
@@ -142,7 +156,7 @@ State* AdditionalStep::process(void* data)
 State* Done::process(void* data)
 {
 	State* returnState = this;
-	RecipeData* data = (RecipeData*) data;
+	RecipeData* recipeData = (RecipeData*) data;
 
 	return returnState;
 }
