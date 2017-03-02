@@ -87,23 +87,13 @@ State* RecipeList::process(void* data)
 
 	switch(userInput)
 	{
-		case 0:
-			break;
 		case 1:
-			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+0);
-			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[1].getState());
-			break;
 		case 2:
-			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+1);
-			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[2].getState());
-			break;
 		case 3:
-			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+2);
-			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[3].getState());
-			break;
 		case 4:
-			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+3);
-			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[4].getState());
+			recipeData->currentRecipe = recipeData->recipes->getRecipe((pageNumber*4)+(userInput-1));
+			returnState = this->stateManager->getState(DISPLAYINGREDIENTS);
+			recipeData->measuredIndex = 0;
 			break;
 		case 10:
 			//Scroll up if not at the top
@@ -198,10 +188,16 @@ State* Fill::process(void* data)
 		if (currentGrams >= recipeData->currentMeasured->grams)
 		{
 			// check one more times...
-			float checkGrams = recipeData->scale->getGrams();
+			float checkGrams = 0;
+			while ((checkGrams = recipeData->scale->getGrams()) <= -1){}
+			
 			if (checkGrams >= recipeData->currentMeasured->grams)
 			{
 				// ok they have it ... get the next measured
+				if(!(recipeData->currentMeasured = recipeData->currentRecipe->getMeasured(++recipeData->measuredIndex)))
+				{
+					returnState = this->stateManager->getState(ADDITIONALSTEP);
+				}
 			} 
 		}
 	}

@@ -47,7 +47,7 @@ class RecipeList : public State
 	public:
 		RecipeList(StateManager* sm, PeripheralFactory* pf) : State(sm, pf) {};
 		State* process(void* data);
-		void setup(void* data){};
+		void setup(void* data);
 	private:
 		int pageNumber;
 };
