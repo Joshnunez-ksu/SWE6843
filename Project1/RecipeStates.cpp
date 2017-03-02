@@ -1,11 +1,13 @@
 #include "RecipeStates.h"
-#include "Recipies"
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
+#include <cstdio>
 
-#define		WELCOME_MESSAGE	"               WELCOME!\n   Start to choose a recipe\n               A - Start\n";
+#define		WELCOME_MESSAGE	"               WELCOME!\n   Start to choose a recipe\n               A - Start\n"
 #define		DONE_MESSAGE	"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
+#define		MEASURE_EMPTY_MESSAGE	"Place empty %s container on scale.\n"
+#define		MEASURE_FILL_MESSAGE	"Fill container with %s grams of %s.\n\n    0    grams\n"
 
 //returns the current number of milliseconds
 long getTick()
@@ -23,16 +25,18 @@ State* Initial::process(void* data)
 	RecipeData* recipeData = (RecipeData*) data;
 
 	//Initialize data
-	//data->display = new Display(gpio->getPin(2));
-	data->keypad = new Keypad(gpio->getPin(3),
-				  gpio->getPin(4),
-				  gpio->getPin(17),
-				  gpio->getPin(27),
-				  gpio->getPin(22),
-				  gpio->getPin(10),
-				  gpio->getPin(9));
-	//data->scale = new Scale(gpio->getPin(11));
-	data->currentRecipe = 0;
+	//data->display = new Display(gpio->getPin(2)); 2-9
+	recipeData->keypad = new KeyPad(gpio->getPin(10),
+									gpio->getPin(11),
+									gpio->getPin(12),
+									gpio->getPin(13),
+									gpio->getPin(14),
+									gpio->getPin(15),
+									gpio->getPin(16),
+									gpio->getPin(17));
+
+	recipeData->scale = new Scale(gpio->getPin(18), gpio->getPin(19));
+	recipeData->currentRecipe = (Recipe*) 0;
 	recipeData->recipes = new Recipes();
 	
 	// display the welcome message
@@ -130,6 +134,18 @@ State* DisplayIngredients::process(void* data)
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
 
+	if (recipeData->keypad->getKey() == 10)
+	{
+		// ready to move to measuring steps
+		// display the first measuring step
+		char msg[160];
+		recipeData->currentMeasured = recipeData->currentRecipe->getMeasured(0);
+		sprintf(msg, MEASURE_EMPTY_MESSAGE, recipeData->currentMeasured->ingredient);
+		std::cout << msg;
+		
+		returnState = this->stateManager->getState(ZEROSCALE);
+	}
+	
 	return returnState;
 }
 
@@ -137,6 +153,29 @@ State* ZeroScale::process(void* data)
 {
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
+	
+	if (recipeData->keypad->getKey() == 10)
+	{
+		// ready to zero the scale
+		// wait a moment to give the scale time to settle
+		nanowait(0, 500000000);
+		
+		// now read scale until we see something reasonable.
+		int reading = 0;
+		
+		while ((reading = recipeData->scale->getReading()) <= -1){}
+		
+		// set the offset
+		recipeData->scale->setOffset(reading);
+		
+		// now transition to Fill state
+		// display fill message
+		char msg[160];
+		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient);
+		std::cout << msg;
+		
+		returnState = this->stateManager->getState(FILL);
+	}
 
 	return returnState;
 }
