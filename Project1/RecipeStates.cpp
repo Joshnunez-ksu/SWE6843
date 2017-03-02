@@ -40,7 +40,7 @@ State* Initial::process(void* data)
 	recipeData->recipes = new Recipes();
 	
 	// display the welcome message
-	// display->print(WELCOME_MESSAGE);
+	// data->display->print(WELCOME_MESSAGE);
 	std::cout << WELCOME_MESSAGE;
 	
 	return returnState;
