@@ -26,17 +26,27 @@ State* Initial::process(void* data)
 	RecipeData* recipeData = (RecipeData*) data;
 
 	//Initialize data
-	//data->display = new Display(gpio->getPin(2)); 2-9
-	recipeData->keypad = new KeyPad(gpio->getPin(10),
-									gpio->getPin(11),
-									gpio->getPin(12),
-									gpio->getPin(13),
-									gpio->getPin(14),
-									gpio->getPin(15),
-									gpio->getPin(16),
-									gpio->getPin(17));
+	recipeData->display = new Display(gpio->getPin(20),
+					  gpio->getPin(25),
+					  gpio->getPin(8),
+					  gpio->getPin(15),
+					  gpio->getPin(7),
+					  gpio->getPin(18),
+					  gpio->getPin(1),
+					  gpio->getPin(23),
+					  gpio->getPin(12),
+					  gpio->getPin(4));
+	
+	recipeData->keypad = new KeyPad(gpio->getPin(26),
+					gpio->getPin(19),
+					gpio->getPin(13),
+					gpio->getPin(6),
+					gpio->getPin(5),
+					gpio->getPin(9),
+					gpio->getPin(10),
+					gpio->getPin(22));
 
-	recipeData->scale = new Scale(gpio->getPin(18), gpio->getPin(19));
+	recipeData->scale = new Scale(gpio->getPin(2), gpio->getPin(3));
 	recipeData->currentRecipe = (Recipe*) 0;
 	recipeData->recipes = new Recipes();
 	
@@ -70,7 +80,6 @@ State* Welcome::process(void* data)
 
 void RecipeList::setup(void* data)
 {
-	RecipeData* recipeData = (RecipeData*) data;
 	pageNumber = 0;
 }
 
@@ -91,7 +100,7 @@ State* RecipeList::process(void* data)
 		case 2:
 		case 3:
 		case 4:
-			recipeData->currentRecipe = recipeData->recipes->getRecipe((pageNumber*4)+(userInput-1));
+			recipeData->currentRecipe = recipeData->recipes->getRecipe((pageNumber*2)+(userInput-1));
 			returnState = this->stateManager->getState(DISPLAYINGREDIENTS);
 			recipeData->measuredIndex = 0;
 			break;

@@ -1,10 +1,7 @@
 #include <iostream>
 #include "../common/Peripherals.h"
-#include <bitset>
 #include <sys/unistd.h>
-#include <array>
-#include <string>
-#include <cassert>
+#include <bitset>
 
 // GPIO Pins
 #define DB7			8		// Data bus
@@ -27,7 +24,7 @@
 #define HL			2
 #define HH			3
 
-// Top or bottom of the scree
+// Top or bottom of the screen
 #define TOP			1
 #define BOTTOM		2
 
@@ -51,33 +48,35 @@ public:
 	PeripheralFactory pf;
 	GPIOSystem* gpio = (GPIOSystem*) pf.getPeripheral(PERIPHERAL_GPIO);
 	
-	//~ GPIOPin* RegisterSelect = gpio->getPin(RS);
-	//~ GPIOPin* Read_Write = gpio->getPin(RW);
-	//~ GPIOPin* CLK_1 = gpio->getPin(E1);
-	//~ GPIOPin* CLK_2 = gpio->getPin(E2);
-	//~ GPIOPin* DataBus[8] = { gpio->getPin(DB0), gpio->getPin(DB1),
-							//~ gpio->getPin(DB2), gpio->getPin(DB3),
-							//~ gpio->getPin(DB4), gpio->getPin(DB5) ,
-							//~ gpio->getPin(DB6), gpio->getPin(DB7) };
+	GPIOPin* RegisterSelect = gpio->getPin(RS);
+	GPIOPin* Read_Write = gpio->getPin(RW);
+	GPIOPin* CLK_1 = gpio->getPin(E1);
+	GPIOPin* CLK_2 = gpio->getPin(E2);
+	GPIOPin* DataBus[8] = { gpio->getPin(DB0), gpio->getPin(DB1),
+							gpio->getPin(DB2), gpio->getPin(DB3),
+							gpio->getPin(DB4), gpio->getPin(DB5) ,
+							gpio->getPin(DB6), gpio->getPin(DB7) };
 	
 	const long TIME_1 = 0.00041;
 	const long TIME_2 = 0.003;
-	
+		
 	int CURRENT_MODE;
-	int ACTIVE = 1;
+	int ACTIVE_CLOCK = TOP;
+	bitset<8> DDRAM_ADDRESS = 0x00;
 	
-	//~ char characterMap[128]= {
-		//~ ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-		//~ ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
-		//~ ' ', '!', '"', '#', '$', '%', '&',  39, '(', ')', '*', '+', ',', '_', '.', '/',
-		//~ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?',
-		//~ '@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
-		//~ 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', 165, ']', '^', '_',
-		 //~ 96, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
-		//~ 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', ' ', ' '
-	//~ };
+	// h
+	char characterMap[128]= {
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+		' ', '!', '"', '#', '$', '%', '&',  39, '(', ')', '*', '+', ',', '_', '.', '/',
+		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?',
+		'@', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
+		'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '[', 165, ']', '^', '_',
+		 96, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+		'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', ' ', ' '
+	};
 	
-	void setup()
+	void setup() // h
 	{
 		RegisterSelect->setDirection(OUT);
 		RegisterSelect->setValue(LOW);
@@ -90,27 +89,6 @@ public:
 		CLK_2->setDirection(OUT);
 		CLK_2->setValue(LOW);
 		
-		//~ switch (POSITION)				// Control top or bottom half of display
-		//~ {
-			//~ case BOTH:
-			//~ {
-				//~ CLK_1->setDirection(OUT);		// Both halves of the display
-				//~ CLK_1->setValue(LOW);
-				//~ CLK_2->setDirection(OUT);
-				//~ CLK_2->setValue(LOW);	break;
-			//~ }
-			//~ case TOP:
-			//~ {
-				//~ CLK_1->setDirection(OUT);		// Top half of the display
-				//~ CLK_1->setValue(LOW);	break;
-			//~ }
-			//~ case BOTTOM:
-			//~ {
-				//~ CLK_2->setDirection(OUT);		// Bottom half of the display
-				//~ CLK_2->setValue(LOW); break;
-			//~ }
-		//~ }
-
 		for (int i = 0; i < 8; i++)		// Data bus
 		{
 			DataBus[i]->setDirection(OUT);
@@ -118,47 +96,47 @@ public:
 		}
 	}
 	
-	void initialize()
+	void initialize() // h
 	{
 		sleep(0.1);
 		
-		operate(LL, 0x30, TIME_1, TOP);
-		operate(LL, 0x30, TIME_1, BOTTOM);
-		operate(LL, 0x30, 0.0001, TOP);
-		operate(LL, 0x30, 0.0001, BOTTOM);
-		operate(LL, 0x30, 0.0001, TOP);
-		operate(LL, 0x30, 0.0001, BOTTOM);
+		operate(LL, FN_SET, TIME_1, TOP);
+		operate(LL, FN_SET, TIME_1, BOTTOM);
+		operate(LL, FN_SET, TIME_1, TOP);
+		operate(LL, FN_SET, TIME_1, BOTTOM);
+		operate(LL, FN_SET, TIME_1, TOP);
+		operate(LL, FN_SET, TIME_1, BOTTOM);
 		operate(LL, FN_SET, 0.000053, BOTTOM);
-			cout << endl<< "function set" << endl;
+			//~ cout << endl<< "function set" << endl;
 			//~ sleep(TEST);
 		
 		operate(LL, OFF, TIME_1, TOP);
 		operate(LL, OFF, TIME_1, BOTTOM);
-			cout << endl<< "display off" << endl;
+			//~ cout << endl<< "display off" << endl;
 			//~ sleep(TEST);
 			
 		operate(LL, CLEAR, TIME_2, TOP);
 		operate(LL, CLEAR, TIME_2, BOTTOM);
-			cout << endl<< "display cleared" << endl;
+			cout << endl << "display cleared" << endl;
 			//~ sleep(TEST);
 		
 		operate(LL, ENTRY_MODE, 0.000053, TOP);
 		operate(LL, ENTRY_MODE, 0.000053, BOTTOM);
 		enable(2); sleep(TIME_1);
-			cout << endl<< "entry mode set" << endl;
+			//~ cout << endl<< "entry mode set" << endl;
 			//~ sleep(TEST);
 			
 		operate(LL, ON, TIME_1, TOP);
-			cout << endl << "display on" << endl;
+			//~ cout << endl << "display on" << endl;
 			//~ sleep(TEST);
 	}
 	
-	void reset()
+	void reset() // h
 	{
 		operate(LL, CLEAR, TIME_2, TOP);
 		operate(LL, CLEAR, TIME_2, BOTTOM);		// Clear display
-		operate(LL, 0x30, TIME_1, TOP);	
-		operate(LL, 0x30, TIME_1, BOTTOM);		// Function set
+		operate(LL, FN_SET, TIME_1, TOP);	
+		operate(LL, FN_SET, TIME_1, BOTTOM);		// Function set
 		operate(LL, 0x08, TIME_1, TOP);
 		operate(LL, 0x08, TIME_1, BOTTOM);		// Turn display off
 		operate(LL, 0x07, TIME_1, TOP);
@@ -167,23 +145,31 @@ public:
 		cout << "display has been reset" << endl;
 	}
 	
-	void set_CGRAM(bitset<8> address)
+	void setCGRAMAddress(bitset<8> address) // h
 	{
 		address = address |= 0x40;
 		
-		operate(LL, address, 0.000037, ACTIVE);
+		operate(LL, address, 0.000037, ACTIVE_CLOCK);
 		cout << "CGRAM set" << endl;
 	}
 	
-	void set_DDRAM(bitset<8> address)
+	void setDDRAMAddress(bitset<8> address) // h
 	{		
-		operate(LL, address, 0.000037, ACTIVE);
-		cout << "DDRAM set" << endl;
+		DDRAM_ADDRESS = address;
+		operate(LL, DDRAM_ADDRESS, 0.000037, ACTIVE_CLOCK);
+		//~ cout << "DDRAM set" << endl;
 	}
 	
-	void write(string text)
+	bitset<8> getDDRAMAddress() // h
 	{
-		for(size_t n = 0; n < text.size();  n++)
+		return DDRAM_ADDRESS;
+	}
+	
+	void write(string text) // h
+	{
+		clear(1);
+		
+		for(size_t n = 0; n < text.size(); n++)
 		{
 			for(int i = 32; i < 128; i++)
 			{
@@ -198,9 +184,8 @@ public:
 			//~ sleep(TEST);
 		}	
 	}
-	void operate(int Mode, bitset<8> Instruction, long Duration, int Clock)
+	void operate(int Mode, bitset<8> Instruction, long Duration, int Clock) // h
 	{
-		assert((Mode >= 0) & (Mode <= 4));
 		
 		// Register Select, Read/!Write
 		setMode(Mode);
@@ -212,15 +197,34 @@ public:
 		checkBusy(Clock, Mode);
 	}
 
+	void clear(int Clock) // h
+	{
+		operate(LL, CLEAR, TIME_2, Clock);
+		setDDRAMAddress(0x00);
+	}
 private:
 	
-	void write_data(bitset<8> data)
+	void write_data(bitset<8> data) // h
 	{
-		operate(HL, data, 0.000037, ACTIVE);
-		//~ cout << "wrote some shit" << endl;
+		operate(HL, data, 0.000037, ACTIVE_CLOCK);
+		
+		if (DDRAM_ADDRESS == 0x27) {
+			DDRAM_ADDRESS = 0x40;
+				cout << "DDRAM_ADDRESS = " << DDRAM_ADDRESS << endl;;
+		} else if (DDRAM_ADDRESS == 0x67) {
+			DDRAM_ADDRESS = 0x00;
+			cout << "DDRAM_ADDRESS = " << DDRAM_ADDRESS << endl;;
+			switchActiveClock();
+		} else 		{
+			int temp = DDRAM_ADDRESS.to_ulong();
+				temp++;
+				DDRAM_ADDRESS = bitset<8> (temp);
+				cout << "DDRAM_ADDRESS = " << DDRAM_ADDRESS << endl;;
+		} 
 	}
 	
-	void setMode(int MODE)
+	
+	void setMode(int MODE) / h
 	{
 		VOLTAGE RS_MODE;
 		VOLTAGE RW_MODE;
@@ -253,12 +257,12 @@ private:
 		Read_Write->setValue(RW_MODE);
 	}
 	
-	void checkMode(int CurrentMode)
+	void checkMode(int CurrentMode) // h
 	{
 		
 	}
 	
-	void loadDB(bitset<8> Instruction)
+	void loadDB(bitset<8> Instruction) // h
 	{
 		for ( int i = 0; i < 8; i++ )
 		{
@@ -267,7 +271,7 @@ private:
 		}
 	}
 	
-	void enable(int i)
+	void enable(int i) // h
 	{
 		if (i == 1)
 		{
@@ -282,8 +286,7 @@ private:
 		}
 	}
 	
-	void checkBusy(int Clock, int PreviousMode)
-	
+	void checkBusy(int Clock, int PreviousMode) // h
 	{
 		setMode(LH);
 		loadDB(0x00);
@@ -295,6 +298,18 @@ private:
 		
 		setMode(PreviousMode);
 	}
+	
+	void switchActiveClock() // h 
+	{
+		if (ACTIVE_CLOCK == TOP) {
+			ACTIVE_CLOCK = BOTTOM;
+			cout << "Now using bottom screen" << endl;
+		} else if (ACTIVE_CLOCK == BOTTOM) {
+			ACTIVE_CLOCK == TOP;
+			cout << "Now using top screen" << endl;
+		}
+	}
+
 };
 
 int main(int argc, char **argv)
@@ -305,8 +320,12 @@ int main(int argc, char **argv)
 	LCD.initialize();
 	sleep(TEST);
 	
-	LCD.set_DDRAM(0X80);
+	LCD.setDDRAMAddress(0X80);
 	//~ sleep(TEST);
+	
+	LCD.write("HelloWorld!");
+	sleep(4);
+	//~ LCD.clear(TOP);
 	
 	int i = 0;
 	string text;
