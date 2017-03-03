@@ -7,7 +7,8 @@
 #define		WELCOME_MESSAGE	"               WELCOME!\n   Start to choose a recipe\n               A - Start\n"
 #define		DONE_MESSAGE	"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
 #define		MEASURE_EMPTY_MESSAGE	"Place empty %s container on scale.\n"
-#define		MEASURE_FILL_MESSAGE	"Fill container with %s grams of %s.\n\n    0    grams\n"
+#define		MEASURE_FILL_MESSAGE	"Fill container with %s grams of %s.\n\n    %i    grams\n"
+#define		RECIPELIST_MESSAGE		"1. %s   %s\n2. %s\n3. %s\n4. %s   %s\n"
 
 //returns the current number of milliseconds
 long getTick()
@@ -25,17 +26,27 @@ State* Initial::process(void* data)
 	RecipeData* recipeData = (RecipeData*) data;
 
 	//Initialize data
-	//data->display = new Display(gpio->getPin(2)); 2-9
-	recipeData->keypad = new KeyPad(gpio->getPin(10),
-									gpio->getPin(11),
-									gpio->getPin(12),
-									gpio->getPin(13),
-									gpio->getPin(14),
-									gpio->getPin(15),
-									gpio->getPin(16),
-									gpio->getPin(17));
+	recipeData->display = new Display(gpio->getPin(20),
+					  gpio->getPin(25),
+					  gpio->getPin(8),
+					  gpio->getPin(15),
+					  gpio->getPin(7),
+					  gpio->getPin(18),
+					  gpio->getPin(1),
+					  gpio->getPin(23),
+					  gpio->getPin(12),
+					  gpio->getPin(4));
+	
+	recipeData->keypad = new KeyPad(gpio->getPin(26),
+					gpio->getPin(19),
+					gpio->getPin(13),
+					gpio->getPin(6),
+					gpio->getPin(5),
+					gpio->getPin(9),
+					gpio->getPin(10),
+					gpio->getPin(22));
 
-	recipeData->scale = new Scale(gpio->getPin(18), gpio->getPin(19));
+	recipeData->scale = new Scale(gpio->getPin(2), gpio->getPin(3));
 	recipeData->currentRecipe = (Recipe*) 0;
 	recipeData->recipes = new Recipes();
 	
@@ -69,7 +80,6 @@ State* Welcome::process(void* data)
 
 void RecipeList::setup(void* data)
 {
-	RecipeData* recipeData = (RecipeData*) data;
 	pageNumber = 0;
 }
 
@@ -86,23 +96,13 @@ State* RecipeList::process(void* data)
 
 	switch(userInput)
 	{
-		case 0:
-			break;
 		case 1:
-			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+0);
-			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[1].getState());
-			break;
 		case 2:
-			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+1);
-			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[2].getState());
-			break;
 		case 3:
-			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+2);
-			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[3].getState());
-			break;
 		case 4:
-			recipeData->currentRecipe = recipes->getRecipe((pageNumber*4)+3);
-			//returnState = this->stateManager->getState("DisplayIngredients" + recipe[4].getState());
+			recipeData->currentRecipe = recipeData->recipes->getRecipe((pageNumber*2)+(userInput-1));
+			returnState = this->stateManager->getState(DISPLAYINGREDIENTS);
+			recipeData->measuredIndex = 0;
 			break;
 		case 10:
 			//Scroll up if not at the top
@@ -183,6 +183,33 @@ State* Fill::process(void* data)
 {
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
+	
+	float currentGrams = recipeData->scale->getGrams();
+	
+	if (currentGrams != -1)
+	{
+		// update the display
+		char msg[160];
+		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient, (int) currentGrams);
+		std::cout << msg;
+		
+		// check to see if this is over the measured limit
+		if (currentGrams >= recipeData->currentMeasured->grams)
+		{
+			// check one more times...
+			float checkGrams = 0;
+			while ((checkGrams = recipeData->scale->getGrams()) <= -1){}
+			
+			if (checkGrams >= recipeData->currentMeasured->grams)
+			{
+				// ok they have it ... get the next measured
+				if(!(recipeData->currentMeasured = recipeData->currentRecipe->getMeasured(++recipeData->measuredIndex)))
+				{
+					returnState = this->stateManager->getState(ADDITIONALSTEP);
+				}
+			} 
+		}
+	}
 
 	return returnState;
 }
@@ -234,7 +261,7 @@ State* Done::process(void* data)
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
 
-	// if the A button pressed to 60 second time out go back to WELCOME
+	// if the A button pressed or 60 second time out go back to WELCOME
 	if (recipeData->keypad->getKey() == 10 ||
 		(getTick() - startTick) > 60000)
 	{
