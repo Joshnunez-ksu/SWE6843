@@ -19,14 +19,17 @@ public:
     void setName(const char* name);
     void addMeasured(Measured* m);
     void addStep(const char* step);
+    void addIngredientString(const char* name);
     
     char*       getName();
     Measured*   getMeasured(int index);
     char*       getStep(int index);
+    char*		getIngredientString(int index);
     
 private:
     std::vector<Measured*>   mMeasuredList;
     std::vector<char*>       mStepList;
+    std::vector<char*>		mIngredientLines;
     char*                    mName;
     
 };

@@ -7,6 +7,7 @@ Recipes::Recipes()
 {
     Recipe* recipe = new Recipe();
     recipe->setName("Rice");
+    recipe->addIngredientString("1 Cup Rice\n2 Cups Water");
     recipe->addMeasured(new Measured("Rice", 224));
     recipe->addMeasured(new Measured("Water", 448));
     recipe->addStep("Combine Rice and Water in pot and place pot on stove.");
@@ -15,6 +16,7 @@ Recipes::Recipes()
     
     recipe = new Recipe();
     recipe->setName("Beans");
+    recipe->addIngredientString("1 Cup beans\n4 Cups Water");
     recipe->addMeasured(new Measured("Beans", 224));
     recipe->addMeasured(new Measured("Water", 448));
     recipe->addStep("Combine Beans and Water in pot and place pot on stove.");
@@ -96,4 +98,24 @@ char* Recipe::getStep(int index)
     }
     
     return returnStep;
+}
+
+void Recipe::addIngredientString(const char* lines)
+{
+	char* newLine = new char[160];
+	strcpy(newLine, lines);
+	
+	this->mIngredientLines.push_back(newLine);
+}
+
+char* Recipe::getIngredientString(int index)
+{
+	char* returnIngredient = (char*) 0;
+	
+	if (index < this->mIngredientLines.size())
+	{
+		returnIngredient = this->mIngredientLines[index];
+	}
+	
+	return returnIngredient;
 }
