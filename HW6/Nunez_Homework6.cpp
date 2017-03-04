@@ -1,6 +1,5 @@
 /********************************************************************************
 Homework 6
-
 ********************************************************************************/
 
 #include "../common/Peripherals.h"
@@ -15,17 +14,20 @@ int main()
 	GPIOPin* LED2 = gpio->getPin(19);
 	GPIOPin* LED3 = gpio->getPin(13);
 	GPIOPin* LED4 = gpio->getPin(6);
+	GPIOPin* LED5 = gpio->getPin(5);
 	
 	// inititalize LEDS
 	LED1->setDirection(OUT);
 	LED2->setDirection(OUT);
 	LED3->setDirection(OUT);
 	LED4->setDirection(OUT);
+	LED5->setDirection(OUT);
 	
 	LED1->setValue(HIGH);
 	LED2->setValue(HIGH);
 	LED3->setValue(HIGH);
 	LED4->setValue(HIGH);
+	LED5->setValue(HIGH);
 	
 	nanowait(1, 0);
 	
@@ -33,6 +35,7 @@ int main()
 	LED2->setValue(LOW);
 	LED3->setValue(LOW);
 	LED4->setValue(LOW);
+	LED5->setValue(LOW);
 	// done initializing
 	
 	// initialize A/D converter
@@ -109,7 +112,14 @@ int main()
 		}
 		
 		//0011 1111 1111
-		LED1->setValue(HIGH); // LED1 is always on
+		if (reading > 5)
+		{
+			LED1->setValue(HIGH);
+		}
+		else
+		{
+			LED1->setValue(LOW);
+		}
 		
 		if (reading > 1024 / 4)
 		{
@@ -136,6 +146,15 @@ int main()
 		else
 		{
 			LED4->setValue(LOW);
+		}
+		
+		if (reading > 1020)
+		{
+			LED5->setValue(HIGH);
+		}
+		else
+		{
+			LED5->setValue(LOW);
 		}
 	}
 	
