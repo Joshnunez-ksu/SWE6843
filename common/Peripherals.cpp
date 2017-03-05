@@ -659,32 +659,30 @@ void Scale::reset()
     nanowait(0, 100000);
 }
 
-Display::Display(int RS, int RW, int E1, int E2, int DB7, int DB6, int DB5, int DB4, int DB3, int DB2, int DB1, int DB0)
+Display::Display(GPIOPin* RegisterSelect, GPIOPin* ReadWrite, GPIOPin* CLK_1, GPIOPin* CLK_2, GPIOPin* DB7, GPIOPin* DB6, GPIOPin* DB5, GPIOPin* DB4, GPIOPin* DB3, GPIOPin* DB2, GPIOPin* DB1, GPIOPin* DB0)
 {
-	RegisterSelect = gpio->getPin(RS);
-	ReadWrite = gpio->getPin(RW);
-	CLK_1 = gpio->getPin(E1);
-	CLK_2 = gpio->getPin(E2);
-	
-	DataBus[0] = gpio->getPin(DB0);
-	DataBus[1] = gpio->getPin(DB1);
-	DataBus[2] = gpio->getPin(DB2);
-	DataBus[3] = gpio->getPin(DB3);
-	DataBus[4] = gpio->getPin(DB4);
-	DataBus[5] = gpio->getPin(DB5);
-	DataBus[6] = gpio->getPin(DB6);
-	DataBus[7] = gpio->getPin(DB7);
-	
-	sleep(0.5);
-	
 	// Setup
+	this->RegisterSelect = RegisterSelect;
+	this->ReadWrite = ReadWrite;
+	this->CLK_1 = CLK_1;
+	this->CLK_2 = CLK_2;
+	
+	DataBus[0] = DB0;
+	DataBus[1] = DB1;
+	DataBus[2] = DB2;
+	DataBus[3] = DB3;
+	DataBus[4] = DB4;
+	DataBus[5] = DB5;
+	DataBus[6] = DB6;
+	DataBus[7] = DB7;
+	
 	RegisterSelect->setDirection(OUT);
 	RegisterSelect->setValue(LOW);
 	
 	ReadWrite->setDirection(OUT);
 	ReadWrite->setValue(LOW);
 	
-	CLK_1->setDirection(OUT);		// Both halves of the display
+	CLK_1->setDirection(OUT);
 	CLK_1->setValue(LOW);
 	CLK_2->setDirection(OUT);
 	CLK_2->setValue(LOW);
@@ -693,7 +691,7 @@ Display::Display(int RS, int RW, int E1, int E2, int DB7, int DB6, int DB5, int 
 		DataBus[i]->setDirection(OUT);
 		DataBus[i]->setValue(LOW);
 	}
-	// End of setup
+	// End of Setup
 	
 	// Initialzation
 	operate(TOP, 0b00, 0x38, 0.000037);
@@ -702,31 +700,43 @@ Display::Display(int RS, int RW, int E1, int E2, int DB7, int DB6, int DB5, int 
 	operate(BOTTOM, 0b00, 0x3C, 0.000037);
 	operate(BOTTOM, 0b00, 0x3C, 0.000037);
 	operate(TOP, 0b00, 0x38, 0.000053);
-	operate(BOTTOM, 0b00, 0x3C, 0.000053);
+	operate(BOTTOM, 0b00, 0x3C, 0.000053);			// Set function
 	
 	operate(TOP, 0b00, 0x08, 0.000037);
-	operate(BOTTOM, 0b00, 0x08, 0.000037);
+	operate(BOTTOM, 0b00, 0x08, 0.000037);			// Turn display off
 	
 	operate(TOP, 0b00, 0x01, 0.00152);
-	operate(BOTTOM, 0b00, 0x01, 0.00152);
+	operate(BOTTOM, 0b00, 0x01, 0.00152);			// Clear display
 	
 	operate(TOP, 0b00, 0x06, 0.000037);
-	operate(BOTTOM, 0b00, 0x06, 0.000037);
+	operate(BOTTOM, 0b00, 0x06, 0.000037);			// Set entry mode
 	
 	operate(TOP, 0b00, 0x0C, 0.000037);
-	operate(BOTTOM, 0b00, 0x0C, 0.000037);
-	// End of initialization
+	operate(BOTTOM, 0b00, 0x0C, 0.000037);			// Turn display on
+	// End of Initialization
 	
+	string text = "Recipe Wizard 3683";
+	
+	for(size_t i = 0; i < (40 + ((40-text.size())/2)); i++)
+		operate(TOP, 0b00, 0x14, 0.000037);			// Center the text
+	
+	//~ data temp = data ((40-text.size())/2);
+		//~ cout << "loaded desired address into data" << endl;
+	//~ temp.set(7,1);
+		//~ cout << "set bit 8 to HIGH" << endl;
+	//~ operate(TOP, 0b00, temp, 0.000037);
+		//~ cout << "set DDRAM address" << endl;
+	
+	for(size_t n = 0; n < text.size(); n++)
+	{
+		size_t i = 32;
+		while((text[n] != characterMap[i]) && (i < 128))
+			i++;
+		
+		if (i == 128) 	writeToDDRAM(ACTIVE_CLOCK, 0x20);		// Character not in character map; display a space
+		else 			writeToDDRAM(ACTIVE_CLOCK, data (i));
+	}
 	sleep(3);
-	
-	string text = "Recipe Wizard 3000";
-	for(int i = 0; i < 40 + ((40 - text.size())/2); i++)
-		operate(ACTIVE_CLOCK, 0b00, 0x14, 0.000037);
-	//~ sleep(3);
-	
-	write(text);
-	sleep(5);
-	clear();
 }
 
 Display::~Display()
@@ -736,7 +746,7 @@ Display::~Display()
 
 void Display::write(string text)
 {
-	//~ clear();
+	clear();
 	
 	for(size_t n = 0; n < text.size(); n++)
 	{
@@ -751,13 +761,20 @@ void Display::write(string text)
 
 void Display::clear()
 {
+	operate(TOP, 0b00, 0x08, 0.000037);
+	operate(BOTTOM, 0b00, 0x08, 0.000037);			// Turn display off
+	sleep(1);
+	
 	operate(TOP, 0b00, 0x01, 0.00152);
-	operate(BOTTOM, 0b00, 0x01, 0.00152);
+	operate(BOTTOM, 0b00, 0x01, 0.00152);			// Clear display
+	
+	operate(TOP, 0b00, 0x0C, 0.000037);
+	operate(TOP, 0b00, 0x0C, 0.000037);				// Turn display on
 	DDRAM_ADDRESS = 0x00;
 }
 
 
-// Internal Opeartions
+// Internal Functions
 void Display::operate(STATE Enabler, mode Mode, data Instruction, long Duration)
 {
 	// Register Select, Read/Write
@@ -796,7 +813,7 @@ void Display::setMode(mode Mode)
 	else if(Mode[1] == 1)		RegisterSelect->setValue(HIGH);
 	
 	if (Mode[0] == 0)			ReadWrite->setValue(LOW);
-	else if(Mode[0] == 1)	ReadWrite->setValue(HIGH);
+	else if(Mode[0] == 1)		ReadWrite->setValue(HIGH);
 	
 	CURRENT_MODE = Mode;
 }
@@ -839,4 +856,5 @@ void Display::switchActiveClock()
 {
 	if (ACTIVE_CLOCK == TOP)			ACTIVE_CLOCK = BOTTOM;
 	else if (ACTIVE_CLOCK == BOTTOM)	ACTIVE_CLOCK = TOP;
+}
 
