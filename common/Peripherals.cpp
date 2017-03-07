@@ -654,7 +654,7 @@ bool Scale::isReady()
 void Scale::reset()
 {
     this->clockPin->setValue(LOW);
-    nanowait(0, 60000);
+    nanowait(0, 30000);
     this->clockPin->setValue(HIGH);
     nanowait(0, 100000);
 }
@@ -667,14 +667,14 @@ Display::Display(GPIOPin* RegisterSelect, GPIOPin* ReadWrite, GPIOPin* CLK_1, GP
 	this->CLK_1 = CLK_1;
 	this->CLK_2 = CLK_2;
 	
-	DataBus[0] = DB0;
-	DataBus[1] = DB1;
-	DataBus[2] = DB2;
-	DataBus[3] = DB3;
-	DataBus[4] = DB4;
-	DataBus[5] = DB5;
-	DataBus[6] = DB6;
-	DataBus[7] = DB7;
+	this->DataBus[0] = DB0;
+	this->DataBus[1] = DB1;
+	this->DataBus[2] = DB2;
+	this->DataBus[3] = DB3;
+	this->DataBus[4] = DB4;
+	this->DataBus[5] = DB5;
+	this->DataBus[6] = DB6;
+	this->DataBus[7] = DB7;
 	
 	RegisterSelect->setDirection(OUT);
 	RegisterSelect->setValue(LOW);
@@ -693,38 +693,47 @@ Display::Display(GPIOPin* RegisterSelect, GPIOPin* ReadWrite, GPIOPin* CLK_1, GP
 	}
 	// End of Setup
 	
+		//~ cout << "Setup complete" << endl;
+	
 	// Initialzation
-	operate(TOP, 0b00, 0x38, 0.000037);
-	operate(BOTTOM, 0b00, 0x3C, 0.000037);
-	operate(TOP, 0b00, 0x38, 0.000037);
-	operate(BOTTOM, 0b00, 0x3C, 0.000037);
-	operate(BOTTOM, 0b00, 0x3C, 0.000037);
-	operate(TOP, 0b00, 0x38, 0.000053);
-	operate(BOTTOM, 0b00, 0x3C, 0.000053);			// Set function
+	operate(TOP, 0b00, 0x38, 30000);
+	operate(BOTTOM, 0b00, 0x3C, 30000);
+	operate(TOP, 0b00, 0x38, 30000);
+	operate(BOTTOM, 0b00, 0x3C, 30000);
+	operate(TOP, 0b00, 0x38, 30000);
+	operate(BOTTOM, 0b00, 0x3C, 30000);
+	operate(TOP, 0b00, 0x38, 53000);
+	operate(BOTTOM, 0b00, 0x3C, 53000);			// Set function
 	
-	operate(TOP, 0b00, 0x08, 0.000037);
-	operate(BOTTOM, 0b00, 0x08, 0.000037);			// Turn display off
+	operate(TOP, 0b00, 0x08, 30000);
+	operate(BOTTOM, 0b00, 0x08, 30000);			// Turn display off
 	
-	operate(TOP, 0b00, 0x01, 0.00152);
-	operate(BOTTOM, 0b00, 0x01, 0.00152);			// Clear display
+	operate(TOP, 0b00, 0x01, 152000000);
+	operate(BOTTOM, 0b00, 0x01, 152000000);			// Clear display
 	
-	operate(TOP, 0b00, 0x06, 0.000037);
-	operate(BOTTOM, 0b00, 0x06, 0.000037);			// Set entry mode
+	operate(TOP, 0b00, 0x06, 30000);
+	operate(BOTTOM, 0b00, 0x06, 30000);			// Set entry mode
 	
-	operate(TOP, 0b00, 0x0C, 0.000037);
-	operate(BOTTOM, 0b00, 0x0C, 0.000037);			// Turn display on
+	operate(TOP, 0b00, 0x0C, 30000);
+	operate(BOTTOM, 0b00, 0x0C, 30000);			// Turn display on
 	// End of Initialization
+	
+		//~ cout << "Initialization complete" << endl;
 	
 	string text = "Recipe Wizard 3683";
 	
 	for(size_t i = 0; i < (40 + ((40-text.size())/2)); i++)
-		operate(TOP, 0b00, 0x14, 0.000037);			// Center the text
+		operate(TOP, 0b00, 0x14, 30000);			// Center the text
+		
+		//~ cout << "Text has been centered" << endl;
+	
+	//~ write(text, 0.001);
 	
 	//~ data temp = data ((40-text.size())/2);
 		//~ cout << "loaded desired address into data" << endl;
 	//~ temp.set(7,1);
 		//~ cout << "set bit 8 to HIGH" << endl;
-	//~ operate(TOP, 0b00, temp, 0.000037);
+	//~ operate(TOP, 0b00, temp, 30000);
 		//~ cout << "set DDRAM address" << endl;
 	
 	for(size_t n = 0; n < text.size(); n++)
@@ -733,10 +742,16 @@ Display::Display(GPIOPin* RegisterSelect, GPIOPin* ReadWrite, GPIOPin* CLK_1, GP
 		while((text[n] != characterMap[i]) && (i < 128))
 			i++;
 		
-		if (i == 128) 	writeToDDRAM(ACTIVE_CLOCK, 0x20);		// Character not in character map; display a space
+		if (i == 128)	writeToDDRAM(ACTIVE_CLOCK, 0x20);		// Character not in character map; display a space
 		else 			writeToDDRAM(ACTIVE_CLOCK, data (i));
+		
+		//~ cout << text[n];
 	}
-	sleep(3);
+	
+		cout << endl << text;
+	
+	nanowait(3, 0);
+	cout << "Construction complete" << endl;
 }
 
 Display::~Display()
@@ -744,14 +759,14 @@ Display::~Display()
 	
 }
 
-void Display::write(string text)
+void Display::write(string Text)
 {
 	clear();
 	
-	for(size_t n = 0; n < text.size(); n++)
+	for(size_t n = 0; n < Text.size(); n++)
 	{
 		size_t i = 32;
-		while((text[n] != characterMap[i]) && (i < 128))
+		while((Text[n] != characterMap[i]) && (i < 128))
 			i++;
 		
 		if (i == 128) 	writeToDDRAM(ACTIVE_CLOCK, 0x20);		// Character not in character map; display a space
@@ -759,49 +774,74 @@ void Display::write(string text)
 	}
 }
 
+void Display::write(string Text, long Time)
+{
+	clear();
+	
+	for(size_t n = 0; n < Text.size(); n++)
+	{
+		size_t i = 32;
+		while((Text[n] != characterMap[i]) && (i < 128))
+			i++;
+		
+		if (i == 128) 	writeToDDRAM(ACTIVE_CLOCK, 0x20);		// Character not in character map; display a space
+		else 			writeToDDRAM(ACTIVE_CLOCK, data (i));
+		
+		nanowait(Time, 0.0);
+	}
+}
+
+
 void Display::clear()
 {
-	operate(TOP, 0b00, 0x08, 0.000037);
-	operate(BOTTOM, 0b00, 0x08, 0.000037);			// Turn display off
-	sleep(1);
+	//~ operate(TOP, 0b00, 0x08, 30000);
+	//~ operate(BOTTOM, 0b00, 0x08, 30000);			// Turn display off
+	//~ nanowait(1, 0);
 	
-	operate(TOP, 0b00, 0x01, 0.00152);
-	operate(BOTTOM, 0b00, 0x01, 0.00152);			// Clear display
+	operate(TOP, 0b00, 0x01, 1520000);
+	operate(BOTTOM, 0b00, 0x01, 1520000);			// Clear display
+		cout << "display cleared" << endl;
 	
-	operate(TOP, 0b00, 0x0C, 0.000037);
-	operate(TOP, 0b00, 0x0C, 0.000037);				// Turn display on
+	//~ operate(TOP, 0b00, 0x0C, 30000);
+	//~ operate(TOP, 0b00, 0x0C, 30000);				// Turn display on
+	
 	DDRAM_ADDRESS = 0x00;
+		cout << "DDRAM_ADDRESS set to " << DDRAM_ADDRESS;
+	ACTIVE_CLOCK = TOP;
+		cout << "ACTIVE_CLOCK set to " << ACTIVE_CLOCK;
 }
 
 
 // Internal Functions
 void Display::operate(STATE Enabler, mode Mode, data Instruction, long Duration)
 {
+	
 	// Register Select, Read/Write
 	setMode(Mode);
+		cout << "Mode set" << endl;
 	
 	// Load data bus (formerly "loadDataBus(Instruction)"
 	for ( int i = 0; i < 8; i++ )
 	{
 		if ( Instruction[i] == 0 )			DataBus[i]->setValue(LOW);
-		else if ( Instruction[i] == 1 )	DataBus[i]->setValue(HIGH);
+		else if ( Instruction[i] == 1 )		DataBus[i]->setValue(HIGH);
 	}
 	
 	// Send instruction to half of display (formerly "enable(Enabler)")
 	if (Enabler == TOP)
 	{
 		CLK_1->setValue(HIGH);
-		sleep(0.0001);
 		CLK_1->setValue(LOW);
+		nanowait(0, 2000);
 	} else if (Enabler == BOTTOM)
 	{
 		CLK_2->setValue(HIGH);
-		sleep(0.0001);
 		CLK_2->setValue(LOW);
+		nanowait(0, 2000);
 	}
 	
 	// Give the display time to execute operation
-	sleep(Duration);
+	nanowait(0, Duration);
 	
 	// Won't take any operations if the display is still working
 	checkBusy(Enabler);
@@ -825,20 +865,25 @@ Display::mode Display::getMode()
 
 void Display::checkBusy(STATE Enabler)
 {
+		cout << " *** checkBusy" << endl;
 	mode m = getMode();
+	
+		cout << "Mode logged" << endl;
 	
 	setMode(0b01);
 	while (DataBus[7]->getValue() == HIGH)		// might can take out the comparison, since it's equivalent to 1/true
 	{
-		sleep(0.000001);
+		nanowait(0, 1000000);
+		cout << "busy" << endl;
 	}
+		cout << "Mode resumed" << endl;
 	
 	setMode(m);
 }
 
 void Display::writeToDDRAM(STATE Enabler, data Data)
 {
-	operate(ACTIVE_CLOCK, 0b10, Data, 0.000037);
+	operate(ACTIVE_CLOCK, 0b10, Data, 30000);
 	
 	if (DDRAM_ADDRESS == 0x27) {
 		DDRAM_ADDRESS = 0x40;
