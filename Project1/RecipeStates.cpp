@@ -53,7 +53,7 @@ State* Initial::process(void* data)
 	recipeData->recipes = new Recipes();
 	
 	// display the welcome message
-	// data->display->print(WELCOME_MESSAGE);
+	recipeData->display->write(WELCOME_MESSAGE);
 	std::cout << WELCOME_MESSAGE;
 	
 	return returnState;
@@ -89,9 +89,6 @@ State* RecipeList::process(void* data)
 {
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
-
-	//Show recipes
-	//data->display->setValue(recipes);
 
 	//Get keypad input
 	int userInput = recipeData->keypad->getKey();
@@ -143,6 +140,7 @@ State* DisplayIngredients::process(void* data)
 		recipeData->currentMeasured = recipeData->currentRecipe->getMeasured(0);
 		sprintf(msg, MEASURE_EMPTY_MESSAGE, recipeData->currentMeasured->ingredient);
 		std::cout << msg;
+		recipeData->display->write(msg);
 		
 		returnState = this->stateManager->getState(ZEROSCALE);
 	}
@@ -174,6 +172,7 @@ State* ZeroScale::process(void* data)
 		char msg[160];
 		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient);
 		std::cout << msg;
+		recipeData->display->write(msg);
 		
 		returnState = this->stateManager->getState(FILL);
 	}
@@ -194,6 +193,7 @@ State* Fill::process(void* data)
 		char msg[160];
 		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient, (int) currentGrams);
 		std::cout << msg;
+		recipeData->display->write(msg);
 		
 		// check to see if this is over the measured limit
 		if (currentGrams >= recipeData->currentMeasured->grams)
@@ -248,9 +248,8 @@ State* AdditionalStep::process(void* data)
 		else
 		{
 			// move to done state
-			// display done message here
-			// display->print(DONE_MESSAGE);
 			std::cout << DONE_MESSAGE;
+			recipeData->display->write(DONE_MESSAGE);
 			returnState = this->stateManager->getState(DONE);
 		}
 	}
@@ -269,6 +268,7 @@ State* Done::process(void* data)
 	{
 		// display welcome message code goes here
 		std::cout << WELCOME_MESSAGE;
+		recipeData->display->write(WELCOME_MESSAGE);
 		returnState = this->stateManager->getState(WELCOME);
 	}
 	
