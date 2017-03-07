@@ -45,7 +45,7 @@ Recipes::Recipes()
     recipe = new Recipe();
     recipe->setName("Black Beans and Rice");
     recipe->addIngredientString("2 cloves garlic, minced\n3/4 cup uncooked white rice\n1 1/2 cups low sodium\n1 teaspoon ground cumin");
-    recipe->addIngredientString("1/4 teaspon cayenne
+    recipe->addIngredientString("1/4 teaspon cayenne");
     
     recipe = new Recipe();
     recipe->setName("Easy Jambalaya");
