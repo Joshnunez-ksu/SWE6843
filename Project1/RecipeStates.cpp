@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <cstdio>
 
-#define		WELCOME_MESSAGE	"               WELCOME!\n   Start to choose a recipe\n               A - Start\n"
-#define		DONE_MESSAGE	"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
+#define		WELCOME_MESSAGE			"               WELCOME!\n   Start to choose a recipe\n               A - Start\n"
+#define		DONE_MESSAGE			"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
 #define		MEASURE_EMPTY_MESSAGE	"Place empty %s container on scale.\n"
 #define		MEASURE_FILL_MESSAGE	"Fill container with %s grams of %s.\n\n    %i    grams\n"
 #define		RECIPELIST_MESSAGE		"1. %s   %s\n2. %s\n3. %s\n4. %s   %s\n"
@@ -46,7 +46,7 @@ State* Initial::process(void* data)
 					gpio->getPin(10),
 					gpio->getPin(22));
 
-	recipeData->scale = new Scale(gpio->getPin(2), gpio->getPin(3));
+	recipeData->scale = new Scale(gpio->getPin(4), gpio->getPin(17));
 	recipeData->currentRecipe = (Recipe*) 0;
 	recipeData->recipes = new Recipes();
 	

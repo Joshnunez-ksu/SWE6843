@@ -251,7 +251,8 @@ private:
 	GPIOPin*	CLK_2;
 	GPIOPin*	DataBus[8];
 	
-	char		characterMap[128] = {
+	char		characterMap[128];
+	/* = {
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',			// 0 - 15
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',			// 16 - 31
 		' ', '!', '"', '#', '$', '%', '&',  39, '(', ')', '*', '+', ',', '-', '.', '/',			// 32 - 47
@@ -261,6 +262,7 @@ private:
 		 96, 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',			// 96 - 111
 		'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '{', '|', '}', ' ', ' '			// 112 - 127
 	};
+	*/
 	
 	typedef	std::bitset<2> mode;
 	typedef	std::bitset<8> data;
@@ -269,9 +271,9 @@ private:
 	};
 	
 	// Variables
-	STATE		ACTIVE_CLOCK = TOP;
+	STATE		ACTIVE_CLOCK; // = TOP;
 	mode		CURRENT_MODE;
-	data		DDRAM_ADDRESS = 0x00;
+	data		DDRAM_ADDRESS; // = 0x00;
 	
 	// Internal Operations
 	void		operate(STATE Enabler, mode Mode, data Instruction, long Duration);
