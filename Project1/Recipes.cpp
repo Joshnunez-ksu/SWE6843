@@ -47,7 +47,26 @@ Recipes::Recipes()
     recipe->addIngredientString("2 cloves garlic, minced\n3/4 cup uncooked white rice\n1 1/2 cups low sodium\n1 teaspoon ground cumin");
     recipe->addIngredientString("1/4 teaspon cayenne
     
-    
+    recipe = new Recipe();
+    recipe->setName("Easy Jambalaya");
+    recipe->addIngredientString("1 tbsp oil\n1 lb boneless chicken breasts, cut\n1/2 lb smoked sausage\n1 medium onion\n1tbsp McCormick Cajun seasoning\n2 1/2 cups chicken broth\n1 can stewed tomatoes\1 cup long grain rice");
+    //My lack of cooking knowledge renders me useless when adding the measured part.
+    /*recipe->addMeasured(new Measured("rice", 224));
+    recipe->addMeasured(new Measured("Water", 448));*/
+    recipe->addStep("Heat oil in large heavy skillet on medium-high heat. Add chicken and sausage; cook and stir 5 minutes. Remove from skillet.");
+    recipe->addStep("Stir onion into skillet; cook and stir on medium heat 2 minutes or until onion is softened. Stir in Seasoning.");
+    recipe->addStep("Stir in broth and tomatoes; bring to boil. Stir in rice. Reduce heat to low; cover and cook 20 to 25 minutes or until rice is tender, stirring occasionally.");    
+    this->mRecipeList.push_back(recipe);
+
+    recipe = new Recipe();
+    recipe->setName("Broccoli & Turkey Pasta");
+    recipe->addIngredientString("3/4lb orecchiette\n2cups broccoli florets\n3tbsp olive oil\n1lb ground turkey\n2 cloves garlic\n1tsp fennel seed\n1/2tsp crushed red pepper\nkosher salt\nParmesan");
+    /*recipe->addMeasured(new Measured("Beans", 224));
+    recipe->addMeasured(new Measured("Water", 448));*/
+    recipe->addStep("Cook the pasta according to the respective package directions. Add broccoli during hte last minute. Drain and return the pasta and broccoli to the pot.");
+    recipe->addStep("Heat 1tbsp of the oil in a large skillet over medium-high heat. Add the turkey, garlic, fennel seed, and red pepper and cook; breaking up the meat with a spoon, until browned, 3 to 5 minutes; season with 1/2tsp salt.");
+    recipe->addStep("Toss the turkey mixture with the pasta and broccoli and the remaining 2 tablespoons of oil. Serve with parmesan.");   
+    this->mRecipeList.push_back(recipe);
 }
 
 Recipes::~Recipes()
