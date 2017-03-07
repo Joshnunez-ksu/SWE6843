@@ -11,9 +11,6 @@
 #define		ERRORFILL			"ErrorFill"
 #define		ADDITIONALSTEP		"AdditionalStep"
 #define		DONE				"Done"
-      
-      
-class Display;
 
 struct RecipeData
 {

@@ -22,7 +22,31 @@ Recipes::Recipes()
     recipe->addStep("Combine Beans and Water in pot and place pot on stove.");
     recipe->addStep("Heat water on high until it boils.  Then reduce heat to low and cover the pot for 20 minutes.");    
     this->mRecipeList.push_back(recipe);
-
+    
+    recipe = new Recipe();
+    recipe->setName("Omelette au Fromage");
+    recipe->addIngredientString("4 extra large eggs\nfine salt, to taste\nfresh groundb black pepper\n1 ounce parmesan cheese grated");
+    recipe->addIngredientString("2 tablespoons butter\n2 ounces gruyere cheese, grated");
+    recipe->addMeasured(new Measured("Parmesan cheese", 28));
+    recipe->addMeasured(new Measured("Gruyere cheese", 56));
+    recipe->addStep("Break the eggs into a bowl.");
+    recipe->addStep("Season to taste with salt, pepper, and nutmeg.");
+    recipe->addStep("Add Parmeasan cheese.");
+    recipe->addStep("Beat the eggs with a fork until just mixed.");
+    recipe->addStep("Heat a large frying pan over medium heat.");
+    recipe->addStep("Add the butter and allow it to melt and color slightly.");
+    recipe->addStep("Add the beaten eggs.");
+    recipe->addStep("Use the flat side of the fork to stir the eggs until start toset.");
+    recipe->addStep("Smooth the top and leave the eggs to cook.");
+    recipe->addStep("Add the Gruyere cheese over the surface.");
+    recipe->addStep("Fold the omelette into thirds and flip it onto a heated servimg plate.");
+    
+    
+    recipe = new Recipe();
+    recipe->setName("Black Beans and Rice");
+    recipe->addIngredientString("2 cloves garlic, minced\n3/4 cup uncooked white rice\n1 1/2 cups low sodium\n1 teaspoon ground cumin");
+    recipe->addIngredientString("1/4 teaspon cayenne");
+    
     recipe = new Recipe();
     recipe->setName("Easy Jambalaya");
     recipe->addIngredientString("1 tbsp oil\n1 lb boneless chicken breasts, cut\n1/2 lb smoked sausage\n1 medium onion\n1tbsp McCormick Cajun seasoning\n2 1/2 cups chicken broth\n1 can stewed tomatoes\1 cup long grain rice");

@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <cstdio>
 
-#define		WELCOME_MESSAGE	"               WELCOME!\n   Start to choose a recipe\n               A - Start\n"
-#define		DONE_MESSAGE	"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
+#define		WELCOME_MESSAGE			"               WELCOME!\n   Start to choose a recipe\n               A - Start\n"
+#define		DONE_MESSAGE			"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
 #define		MEASURE_EMPTY_MESSAGE	"Place empty %s container on scale.\n"
 #define		MEASURE_FILL_MESSAGE	"Fill container with %s grams of %s.\n\n    %i    grams\n"
 #define		RECIPELIST_MESSAGE		"1. %s   %s\n2. %s\n3. %s\n4. %s   %s\n"
@@ -26,32 +26,34 @@ State* Initial::process(void* data)
 	RecipeData* recipeData = (RecipeData*) data;
 
 	//Initialize data
-	recipeData->display = new Display(gpio->getPin(20),
-					  gpio->getPin(25),
-					  gpio->getPin(8),
-					  gpio->getPin(15),
-					  gpio->getPin(7),
-					  gpio->getPin(18),
-					  gpio->getPin(1),
-					  gpio->getPin(23),
-					  gpio->getPin(12),
-					  gpio->getPin(4));
+	recipeData->display = new Display(	gpio->getPin(20),
+						gpio->getPin(25), 
+						gpio->getPin(16), 
+						gpio->getPin(21), 
+						gpio->getPin(8), 
+						gpio->getPin(15), 
+						gpio->getPin(7), 
+						gpio->getPin(18), 
+						gpio->getPin(1), 
+						gpio->getPin(23), 
+						gpio->getPin(12), 
+						gpio->getPin(24));
 	
-	recipeData->keypad = new KeyPad(gpio->getPin(26),
+	recipeData->keypad = new KeyPad(gpio->getPin(5),
+					gpio->getPin(6),
+					gpio->getPin(26),
 					gpio->getPin(19),
 					gpio->getPin(13),
-					gpio->getPin(6),
-					gpio->getPin(5),
 					gpio->getPin(9),
 					gpio->getPin(10),
 					gpio->getPin(22));
 
-	recipeData->scale = new Scale(gpio->getPin(2), gpio->getPin(3));
+	recipeData->scale = new Scale(gpio->getPin(17), gpio->getPin(4));
 	recipeData->currentRecipe = (Recipe*) 0;
 	recipeData->recipes = new Recipes();
 	
 	// display the welcome message
-	// data->display->print(WELCOME_MESSAGE);
+	recipeData->display->write(WELCOME_MESSAGE);
 	std::cout << WELCOME_MESSAGE;
 	
 	return returnState;
@@ -87,9 +89,6 @@ State* RecipeList::process(void* data)
 {
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
-
-	//Show recipes
-	//data->display->setValue(recipes);
 
 	//Get keypad input
 	int userInput = recipeData->keypad->getKey();
@@ -141,6 +140,7 @@ State* DisplayIngredients::process(void* data)
 		recipeData->currentMeasured = recipeData->currentRecipe->getMeasured(0);
 		sprintf(msg, MEASURE_EMPTY_MESSAGE, recipeData->currentMeasured->ingredient);
 		std::cout << msg;
+		recipeData->display->write(msg);
 		
 		returnState = this->stateManager->getState(ZEROSCALE);
 	}
@@ -172,6 +172,7 @@ State* ZeroScale::process(void* data)
 		char msg[160];
 		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient);
 		std::cout << msg;
+		recipeData->display->write(msg);
 		
 		returnState = this->stateManager->getState(FILL);
 	}
@@ -192,6 +193,7 @@ State* Fill::process(void* data)
 		char msg[160];
 		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient, (int) currentGrams);
 		std::cout << msg;
+		recipeData->display->write(msg);
 		
 		// check to see if this is over the measured limit
 		if (currentGrams >= recipeData->currentMeasured->grams)
@@ -246,9 +248,8 @@ State* AdditionalStep::process(void* data)
 		else
 		{
 			// move to done state
-			// display done message here
-			// display->print(DONE_MESSAGE);
 			std::cout << DONE_MESSAGE;
+			recipeData->display->write(DONE_MESSAGE);
 			returnState = this->stateManager->getState(DONE);
 		}
 	}
@@ -267,6 +268,7 @@ State* Done::process(void* data)
 	{
 		// display welcome message code goes here
 		std::cout << WELCOME_MESSAGE;
+		recipeData->display->write(WELCOME_MESSAGE);
 		returnState = this->stateManager->getState(WELCOME);
 	}
 	
