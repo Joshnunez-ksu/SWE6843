@@ -5,6 +5,9 @@
 #include <string>
 #include <bitset>
 
+#include <iostream>
+#include <fstream>
+
 #define PERIPHERAL_GPIO  "GPIO"
 #define PERIPHERAL_PWM "PWM"
 
@@ -128,6 +131,10 @@ private:
       
       std::string strBasePath;
       std::string strPortPath;
+      
+      std::ofstream valueOut;
+      std::ifstream valueIn;
+      
 };
 
 class PWMPin
@@ -232,13 +239,17 @@ private:
     void reset();
 };
 
+typedef	std::bitset<2> mode;
+typedef	std::bitset<8> data;
+
 class Display 
 {
 public:
 	
 	Display(GPIOPin* RegisterSelect, GPIOPin* ReadWrite, GPIOPin* CLK_1, GPIOPin* CLK_2, GPIOPin* DB7, GPIOPin* DB6, GPIOPin* DB5, GPIOPin* DB4, GPIOPin* DB3, GPIOPin* DB2, GPIOPin* DB1, GPIOPin* DB0);
 	~Display();
-	
+
+	void		write(const char* Text, int size);
 	void		write(std::string Text);
 	void		write(std::string Text, long Time);
 	void		clear();
@@ -264,8 +275,6 @@ private:
 	};
 	*/
 	
-	typedef	std::bitset<2> mode;
-	typedef	std::bitset<8> data;
 	enum 		STATE {
 		TOP = 1, BOTTOM = 2
 	};

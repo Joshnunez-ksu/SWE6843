@@ -4,8 +4,6 @@
 #include <sys/types.h>
 #include <sys/fcntl.h>
 #include <sys/unistd.h>
-#include <iostream>
-#include <fstream>
 
 using namespace std;
 
@@ -246,10 +244,17 @@ GPIOPin::GPIOPin(GPIOSystem* s, int pinNumber)
 	dirFile.flush();
 	dirFile.close();
 	*/
+	
+	this->valueOut.open(this->getPortPath("/value").c_str());
+	this->valueIn.open(this->getPortPath("/value").c_str());
 }
 
 GPIOPin::~GPIOPin()
 {
+		//close value streams
+		this->valueOut.close();
+		this->valueIn.close();
+		
       // set the port to input to guard against shorts
       ofstream pin((this->strPortPath + "/direction").c_str());
       pin << "in";
@@ -263,23 +268,30 @@ GPIOPin::~GPIOPin()
 
 VOLTAGE GPIOPin::getValue()
 {
-      ifstream pin(this->getPortPath("/value").c_str());
+      //ifstream pin(this->getPortPath("/value").c_str());
       
       char v;
-      pin >> v;
+      //pin >> v;
       
-      pin.close();
+      //pin.close();
+      
+      this->valueIn.seekg(0);
+      v = this->valueIn.get();
       
       return (VOLTAGE) (v & ~0x30);
 }
 
 void GPIOPin::setValue(VOLTAGE value)
 {
-      ofstream pin(this->getPortPath("/value").c_str());
-      pin << (char) ((int)value | 0x30);
-      pin.flush();
+      //ofstream pin(this->getPortPath("/value").c_str());
+      //pin << (char) ((int)value | 0x30);
+      //pin.flush();
       
-      pin.close();
+      //pin.close();
+      
+      this->valueOut.seekp(0);
+      this->valueOut.put((char) ((int)value | 0x30));
+      this->valueOut.flush();
 }
 
 void GPIOPin::setDirection(DIRECTION d)
@@ -665,7 +677,7 @@ Display::Display(GPIOPin* RegisterSelect, GPIOPin* ReadWrite, GPIOPin* CLK_1, GP
 	
 	for (int i=0; i<128; i++)
 	{
-		this->characterMap[128] = char(i);
+		this->characterMap[i] = (char) i;
 	}
 	/* = {
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',			// 0 - 15
@@ -779,6 +791,32 @@ Display::~Display()
 	
 }
 
+void Display::write(const char* Text, int size)
+{
+	clear();
+	int charsOnLine = 0;
+	
+	for (int i = 0; i < size; i++)
+	{
+		if (Text[i] == 0) break;
+		
+		if (Text[i] == '\n')
+		{
+			for (int j=0; j< (40 - (charsOnLine%40)); j++)
+			{
+				writeToDDRAM(ACTIVE_CLOCK, 0x20);
+			}
+			charsOnLine = 0;
+			
+		}
+		else
+		{
+			writeToDDRAM(ACTIVE_CLOCK, data(Text[i]));
+			charsOnLine++;
+		}
+	}
+}
+
 void Display::write(string Text)
 {
 	clear();
@@ -826,9 +864,9 @@ void Display::clear()
 	//~ operate(TOP, 0b00, 0x0C, 30000);				// Turn display on
 	
 	DDRAM_ADDRESS = 0x00;
-		cout << "DDRAM_ADDRESS set to " << DDRAM_ADDRESS;
+//		cout << "DDRAM_ADDRESS set to " << DDRAM_ADDRESS;
 	ACTIVE_CLOCK = TOP;
-		cout << "ACTIVE_CLOCK set to " << ACTIVE_CLOCK;
+//		cout << "ACTIVE_CLOCK set to " << ACTIVE_CLOCK;
 }
 
 
@@ -838,7 +876,7 @@ void Display::operate(STATE Enabler, mode Mode, data Instruction, long Duration)
 	
 	// Register Select, Read/Write
 	setMode(Mode);
-		cout << "Mode set" << endl;
+//		cout << "Mode set" << endl;
 	
 	// Load data bus (formerly "loadDataBus(Instruction)"
 	for ( int i = 0; i < 8; i++ )
@@ -878,25 +916,25 @@ void Display::setMode(mode Mode)
 	CURRENT_MODE = Mode;
 }
 
-Display::mode Display::getMode()
+mode Display::getMode()
 {
 	return CURRENT_MODE;
 }
 
 void Display::checkBusy(STATE Enabler)
 {
-		cout << " *** checkBusy" << endl;
+//		cout << " *** checkBusy" << endl;
 	mode m = getMode();
 	
-		cout << "Mode logged" << endl;
+//		cout << "Mode logged" << endl;
 	
 	setMode(0b01);
 	while (DataBus[7]->getValue() == HIGH)		// might can take out the comparison, since it's equivalent to 1/true
 	{
 		nanowait(0, 1000000);
-		cout << "busy" << endl;
+//		cout << "busy" << endl;
 	}
-		cout << "Mode resumed" << endl;
+//		cout << "Mode resumed" << endl;
 	
 	setMode(m);
 }

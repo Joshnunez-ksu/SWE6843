@@ -6,6 +6,7 @@ test the scale
 #include "../common/Peripherals.h"
 #include <time.h>
 #include <cstdlib>
+#include <iomanip>
 
 #define CLOCK_WAIT  2000
 
@@ -16,7 +17,7 @@ long getTick()
       
       return (ts.tv_sec * 1000) + (ts.tv_nsec/1000000);
 }
-
+/*
 struct AverageBufferElement
 {
     int data;
@@ -127,12 +128,18 @@ public:
     Scale(GPIOPin* dataPin, GPIOPin* clockPin);
     ~Scale();
     
-    int getWeight();
-    int getAverageWeight();
+    int     getReading();
+    float   getGrams();
+    int     getAverageWeight();
+    
+    void    setOffset(int offset) {this->offset = offset;};
     
 private:
-    GPIOPin* dataPin;
-    GPIOPin* clockPin;
+    GPIOPin*    dataPin;
+    GPIOPin*    clockPin;
+    int         offset;
+    float       factor;
+    
     AverageBuffer* buffer;
     
     bool isReady();
@@ -141,7 +148,7 @@ private:
 
 Scale::Scale(GPIOPin* dataPin, GPIOPin* clockPin)
 {
-    this->buffer = new AverageBuffer(5);
+    this->buffer = new AverageBuffer(1);
     
     this->dataPin = dataPin;
     this->clockPin = clockPin;
@@ -152,8 +159,14 @@ Scale::Scale(GPIOPin* dataPin, GPIOPin* clockPin)
     this->clockPin->setDirection(OUT);
     this->reset();
     
+    std::cout << "Data pin after constructorA: " << this->dataPin->getValue() << "\n";
     // now waiting for the data pin to go LOW to indicate that the device is ready
     this->clockPin->setValue(LOW);
+    std::cout << "Data pin after constructorB: " << this->dataPin->getValue() << "\n";
+    std::cout.flush();
+    
+    this->offset = 0;
+    this->factor = 130.0 / 51000.0;
 }
 
 Scale::~Scale()
@@ -161,14 +174,13 @@ Scale::~Scale()
     this->reset();
 }
 
-int Scale::getWeight()
+int Scale::getReading()
 {
-    int returnWeight = -1;
+    int reading = -1;
     
     if (this->isReady())
     {
-        
-        returnWeight = 0;
+        reading = 0;
         
         for(int i = 23; i >= 0; i--)
         {
@@ -178,7 +190,7 @@ int Scale::getWeight()
             
             if (this->dataPin->getValue())
             {
-                returnWeight |= (1 << i);
+                reading |= (1 << i);
             }
         }
         
@@ -187,29 +199,43 @@ int Scale::getWeight()
         this->clockPin->setValue(LOW);
         nanowait(0, CLOCK_WAIT);
         
-        if (returnWeight >= 0x7FFFFF && returnWeight <= 0xFFFFFF)
+        
+        if (reading >= 0x7FFFFF && reading <= 0xFFFFFF)
         {
-            returnWeight = -1;
+            reading = -1;
         }
     }
     
-    return returnWeight;
+    return reading;
+}
+
+float Scale::getGrams()
+{
+    float returnGrams = -1;
+    int reading = this->getReading();
+    
+    if (reading != -1)
+    {
+        returnGrams = (reading - this->offset) * this->factor;
+    }
+    
+    return returnGrams;
 }
 
 int Scale::getAverageWeight()
 {
-    int currentValue = this->getWeight();
+    float currentValue = this->getGrams();
     int currentAverage = this->buffer->getAverage();
     
     if ( currentValue != -1 &&
-        (currentAverage == 0 || abs(currentValue - currentAverage) < (currentAverage*2)) )
+        (currentAverage == 0 || abs(currentValue - currentAverage) < (currentAverage)) )
     {
-        this->buffer->addValue(currentValue);
+        this->buffer->addValue((int)currentValue);
     }
     
     return currentAverage;
 }
-
+*/
 /*
 int Scale::getAverageWeight()
 {
@@ -254,7 +280,7 @@ int Scale::getAverageWeight()
     return weightSum / 4;
 }
 */
-
+/*
 bool Scale::isReady()
 {
     bool returnReady = false;
@@ -274,28 +300,43 @@ void Scale::reset()
     this->clockPin->setValue(HIGH);
     nanowait(0, 100000);
 }
-
+*/
 int main()
 {
     PeripheralFactory pf;
     GPIOSystem* gpio = (GPIOSystem*) pf.getPeripheral(PERIPHERAL_GPIO);
 
-    Scale scale(gpio->getPin(21), gpio->getPin(20));
+    Scale* scale = new Scale(gpio->getPin(21), gpio->getPin(20));
+    //Scale scale(gpio->getPin(21), gpio->getPin(20));
     
     long startTick = getTick();
 
     int running = 0;
 
-    int lastValue = 0;
-    int currentValue = 0;
+    float lastValue = 0;
+    float currentValue = 0;
+    
+    int currentReading = 0;
     
     int totalReads = 0;
     int goodReads = 0;
+    
+    std::cout << "Press enter when scale is cleared...\n";
+    std::cin >> currentValue;
+    
+    while ((currentReading = scale->getReading()) == -1)
+    {
+    }
+    
+    scale->setOffset(currentReading);
+
+    std::cout << "Current offset: " << currentReading << "\n";
+    nanowait(1, 0);
 
     while((getTick() - startTick) < 60000)
     {
-        //currentValue = scale.getWeight();
-        currentValue = scale.getAverageWeight();
+        currentValue = scale->getGrams();
+        //currentValue = scale->getAverageWeight();
 
         if (currentValue != -1)
         {
@@ -309,18 +350,20 @@ int main()
 //            {
                   //std::cout << (currentValue & 0xFFFFFC00) << "\n";
                   //std::cout << currentValue << "\t" << getTick() - startTick << "\n";
-                  std::cout << currentValue << "\r";
+                  std::cout << totalReads << ") " << currentValue  << "\n"; // << "          \r";
                   std::cout.flush();
 //            }
 
             lastValue = currentValue;
         }
         
-        //nanowait(0,250000000);
+//        nanowait(0,100000000);
 
     }
 
     std::cout << "\n" << CLOCK_WAIT << "\n\tTotal Reads: " << totalReads << "\n\t" << "Good Reads: " << goodReads << "\n\t" << "Bad Reads: " << totalReads - goodReads << "\n\t" << "percentage bad: " << (totalReads - goodReads)/totalReads << "\n";
 
+    delete scale;
+    
     return 0;
 }

@@ -4,11 +4,14 @@
 #include <stdlib.h>
 #include <cstdio>
 
-#define		WELCOME_MESSAGE			"               WELCOME!\n   Start to choose a recipe\n               A - Start\n"
+#define		WELCOME_MESSAGE			"               WELCOME!\n          Start to choose a recipe\n\n               A - Start\n"
 #define		DONE_MESSAGE			"Greate job!\n\nEnjoy your tasty meal.\nNom Nom Nom\n"
-#define		MEASURE_EMPTY_MESSAGE	"Place empty %s container on scale.\n"
-#define		MEASURE_FILL_MESSAGE	"Fill container with %s grams of %s.\n\n    %i    grams\n"
-#define		RECIPELIST_MESSAGE		"1. %s   %s\n2. %s\n3. %s\n4. %s   %s\n"
+#define		MEASURE_EMPTY_MESSAGE	"Place empty %s container on scale.\n\n               Press A when done\n"
+#define		MEASURE_FILL_MESSAGE	"Fill container with %d grams of %s.\n\n    %d    grams\n"
+#define		RECIPELIST_MESSAGE		"1. %-20s %+15s\n2. %s\n3. %s\n4. %-20s %+15s\n"
+#define		ADDITIONAL_STEPS_MESSAGE	"%s\n          Press A\n"
+#define		INGREDIENTS_MESSAGE		"%s\n     A - Done\n"
+#define		CLEAR_SCALE_MESSAGE		"Remove %s and prepare to measure %s"
 
 //returns the current number of milliseconds
 long getTick()
@@ -53,7 +56,9 @@ State* Initial::process(void* data)
 	recipeData->recipes = new Recipes();
 	
 	// display the welcome message
-	recipeData->display->write(WELCOME_MESSAGE);
+	char msg[160];
+	sprintf(msg, WELCOME_MESSAGE);
+	recipeData->display->write(msg, 160);
 	std::cout << WELCOME_MESSAGE;
 	
 	return returnState;
@@ -70,6 +75,15 @@ State* Welcome::process(void* data)
 	switch(userInput)
 	{
 		case 10:
+			// display the first page of recipes
+			char msg[160];
+			sprintf(msg, RECIPELIST_MESSAGE, recipeData->recipes->getRecipe(0)->getName(), "", 
+												recipeData->recipes->getRecipe(1)->getName(), 
+												recipeData->recipes->getRecipe(2)->getName(), 
+												recipeData->recipes->getRecipe(3)->getName(), "D - Next");
+			msg[159] = 0;
+			recipeData->display->write(msg, 160);
+			
 			returnState = this->stateManager->getState(RECIPELIST);
 			break;
 		default:
@@ -82,7 +96,7 @@ State* Welcome::process(void* data)
 
 void RecipeList::setup(void* data)
 {
-	pageNumber = 0;
+	this->pageNumber = 0;
 }
 
 State* RecipeList::process(void* data)
@@ -99,24 +113,45 @@ State* RecipeList::process(void* data)
 		case 2:
 		case 3:
 		case 4:
+			std::cout << "selection: " << (pageNumber*2)+(userInput-1) << "\n";
 			recipeData->currentRecipe = recipeData->recipes->getRecipe((pageNumber*2)+(userInput-1));
+			
+			char msg[160];
+			sprintf(msg, INGREDIENTS_MESSAGE, recipeData->currentRecipe->getIngredientString(0));
+			recipeData->display->write(msg, 160);
+			
 			returnState = this->stateManager->getState(DISPLAYINGREDIENTS);
 			recipeData->measuredIndex = 0;
 			break;
 		case 10:
 			//Scroll up if not at the top
-			if(pageNumber == 0);
-			else
+			std::cout << "Scroll up, Page number: " << this->pageNumber << "\n";
+			if(this->pageNumber == 1)
 			{
-				pageNumber++;
+				char msg[160];
+				sprintf(msg, RECIPELIST_MESSAGE, recipeData->recipes->getRecipe(0)->getName(), "", 
+												recipeData->recipes->getRecipe(1)->getName(), 
+												recipeData->recipes->getRecipe(2)->getName(), 
+												recipeData->recipes->getRecipe(3)->getName(), "D - Next");
+				msg[159] = 0;
+				recipeData->display->write(msg, 160);
+				this->pageNumber--;
 			}
 			break;
 		case 13:
 			//Scroll down if not at the bottom
-			if(pageNumber == 2);
-			else
+			std::cout << "Scroll down, Page number: " << this->pageNumber << "\n";
+			if(this->pageNumber == 0)
 			{
-				pageNumber--;
+				char msg[160];
+				sprintf(msg, RECIPELIST_MESSAGE, recipeData->recipes->getRecipe(4)->getName(), "A - Prev", 
+												recipeData->recipes->getRecipe(5)->getName(), 
+												"", 
+												"", "");
+				msg[159] = 0;
+				recipeData->display->write(msg, 160);
+				
+				this->pageNumber++;
 			}
 			break;
 		default:
@@ -139,8 +174,8 @@ State* DisplayIngredients::process(void* data)
 		char msg[160];
 		recipeData->currentMeasured = recipeData->currentRecipe->getMeasured(0);
 		sprintf(msg, MEASURE_EMPTY_MESSAGE, recipeData->currentMeasured->ingredient);
+		recipeData->display->write(msg, 160);
 		std::cout << msg;
-		recipeData->display->write(msg);
 		
 		returnState = this->stateManager->getState(ZEROSCALE);
 	}
@@ -170,9 +205,9 @@ State* ZeroScale::process(void* data)
 		// now transition to Fill state
 		// display fill message
 		char msg[160];
-		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient);
+		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient, 0);
 		std::cout << msg;
-		recipeData->display->write(msg);
+		recipeData->display->write(msg, 160);
 		
 		returnState = this->stateManager->getState(FILL);
 	}
@@ -187,13 +222,13 @@ State* Fill::process(void* data)
 	
 	float currentGrams = recipeData->scale->getGrams();
 	
-	if (currentGrams != -1)
+	if (currentGrams > -1)
 	{
 		// update the display
 		char msg[160];
 		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient, (int) currentGrams);
 		std::cout << msg;
-		recipeData->display->write(msg);
+		recipeData->display->write(msg, 160);
 		
 		// check to see if this is over the measured limit
 		if (currentGrams >= recipeData->currentMeasured->grams)
@@ -204,9 +239,20 @@ State* Fill::process(void* data)
 			
 			if (checkGrams >= recipeData->currentMeasured->grams)
 			{
+				Measured* prevMeasured = recipeData->currentMeasured;
+				
 				// ok they have it ... get the next measured
-				if(!(recipeData->currentMeasured = recipeData->currentRecipe->getMeasured(++recipeData->measuredIndex)))
+				if((recipeData->currentMeasured = recipeData->currentRecipe->getMeasured(++recipeData->measuredIndex)))
 				{
+					// they need to clear the scale and move to the next measured...
+					sprintf(msg, CLEAR_SCALE_MESSAGE, prevMeasured->ingredient, recipeData->currentMeasured->ingredient);
+					recipeData->display->write(msg, 160);
+					returnState = this->stateManager->getState(VALIDATE);
+				}
+				else
+				{
+					sprintf(msg, ADDITIONAL_STEPS_MESSAGE, recipeData->currentRecipe->getStep(0));
+					recipeData->display->write(msg, 160);
 					returnState = this->stateManager->getState(ADDITIONALSTEP);
 				}
 			} 
@@ -221,6 +267,16 @@ State* Validate::process(void* data)
 	State* returnState = this;
 	RecipeData* recipeData = (RecipeData*) data;
 
+	if (recipeData->scale->getGrams() == 0)
+	{
+		// continue to weighing the next measured
+		char msg[160];
+		sprintf(msg, MEASURE_FILL_MESSAGE, recipeData->currentMeasured->grams, recipeData->currentMeasured->ingredient, 0);
+		recipeData->display->write(msg, 160);
+		
+		returnState = this->stateManager->getState(FILL);
+	}
+	
 	return returnState;
 }
 
@@ -239,17 +295,19 @@ State* AdditionalStep::process(void* data)
 
 	if (recipeData->keypad->getKey() == 10)
 	{
-		char* step = recipeData->currentRecipe->getStep(this->stepNumber++);
+		char* step = recipeData->currentRecipe->getStep(++this->stepNumber);
 		if (step)
 		{
 			// display the current step text
-			// display->print(step);
+			char msg[160];
+			sprintf(msg, ADDITIONAL_STEPS_MESSAGE, step);
+			recipeData->display->write(msg, 160);
 		}
 		else
 		{
 			// move to done state
 			std::cout << DONE_MESSAGE;
-			recipeData->display->write(DONE_MESSAGE);
+			recipeData->display->write(DONE_MESSAGE, 160);
 			returnState = this->stateManager->getState(DONE);
 		}
 	}
@@ -268,7 +326,7 @@ State* Done::process(void* data)
 	{
 		// display welcome message code goes here
 		std::cout << WELCOME_MESSAGE;
-		recipeData->display->write(WELCOME_MESSAGE);
+		recipeData->display->write(WELCOME_MESSAGE, 150);
 		returnState = this->stateManager->getState(WELCOME);
 	}
 	

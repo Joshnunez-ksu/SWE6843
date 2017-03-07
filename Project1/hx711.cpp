@@ -1,11 +1,13 @@
 #include <iostream>
 #include "hx711.h"
-#include "common/Peripherals.cpp"
+#include "../common/Peripherals.h"
 
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
 #define bitSet(value, bit) ((value) |= (1UL << (bit)))
 #define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
 #define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
+
+using namespace std;
 
 PeripheralFactory pf;
 GPIOSystem* gpio = (GPIOSystem*) pf.getPeripheral(PERIPHERAL_GPIO);
@@ -94,7 +96,7 @@ int main()
 	while(true)
 	{
 		cout << scale.getGram() << 'g' <<endl;
-		nanowait(0, 500000000);
+		//nanowait(0, 500000000);
 	}
 	return 0;
 }
