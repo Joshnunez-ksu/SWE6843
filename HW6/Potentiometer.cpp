@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <string>
+#include <cstring>
 #include <iostream>
 #include "../common/Peripherals.h"
 
@@ -123,13 +123,13 @@ int mcp3008Spi::spiWriteRead( unsigned char *data, int length)
 	// one spi transfer for each byte
 	for (i = 0 ; i < length ; i++)
 	{
-
-	    spi[i].tx_buf        = (unsigned long)(data + i); // transmit from "data"
-	    spi[i].rx_buf        = (unsigned long)(data + i) ; // receive into "data"
-	    spi[i].len           = sizeof(*(data + i)) ;
-	    spi[i].delay_usecs   = 0 ;
-	    spi[i].speed_hz      = this->speed ;
-	    spi[i].bits_per_word = this->bitsPerWord ;
+		memset(&spi[i], 0, sizeof (spi[i]));
+	    	spi[i].tx_buf        = (unsigned long)(data + i); // transmit from "data"
+	    	spi[i].rx_buf        = (unsigned long)(data + i) ; // receive into "data"
+	    	spi[i].len           = sizeof(*(data + i)) ;
+	    	spi[i].delay_usecs   = 0 ;
+	    	spi[i].speed_hz      = this->speed ;
+	    	spi[i].bits_per_word = this->bitsPerWord ;
     		spi[i].cs_change = 0;
 	}
 
