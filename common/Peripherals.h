@@ -240,6 +240,7 @@ public:
 	~Display();
 	
 	void		write(std::string Text);
+	void		write(std::string Text, long Time);
 	void		clear();
 	
 	
@@ -250,7 +251,7 @@ private:
 	GPIOPin*	CLK_2;
 	GPIOPin*	DataBus[8];
 	
-	char		characterMap[128]= {
+	char		characterMap[128] = {
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',			// 0 - 15
 		' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',			// 16 - 31
 		' ', '!', '"', '#', '$', '%', '&',  39, '(', ')', '*', '+', ',', '-', '.', '/',			// 32 - 47
